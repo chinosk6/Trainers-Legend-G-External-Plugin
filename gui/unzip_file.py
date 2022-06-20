@@ -3,11 +3,33 @@ import os
 
 
 def config_update(config_before: dict, new_config: dict):
-    config_edit = config_before.copy()
-    for k in new_config:
-        if k not in config_edit:
-            config_edit[k] = new_config[k]
-    return config_edit
+    keepList = {
+        "enableConsole",
+        "enableLogger",
+        "dumpStaticEntries",
+        "maxFps",
+        "unlockSize",
+        "uiScale",
+        "replaceFont",
+        "autoFullscreen",
+        "externalPlugin",
+        "openExternalPluginOnLoad",
+        "autoChangeLineBreakMode",
+    }
+
+    ret_cfg = new_config.copy()
+    for k in ret_cfg:
+        if k in keepList:
+            if k in config_before:
+                ret_cfg[k] = config_before[k]
+    return ret_cfg
+
+    # config_edit = config_before.copy()
+    # for k in new_config:
+    #     if k not in config_edit:
+    #         config_edit[k] = new_config[k]
+    # return config_edit
+
 
 
 def unzip_file(zipfilename, unziptodir):
