@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>393</width>
+    <height>580</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Trainers-Legend-G External Plugin</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>371</width>
+      <height>341</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Trainers-Legend-G External Plugin</string>
+    </property>
+    <widget class="QPushButton" name="pushButton_config_settings">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>40</y>
+       <width>221</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Config Settings</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_fast_reboot">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>240</y>
+       <width>221</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Game Fast Reboot</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_discord_rpc">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>140</y>
+       <width>221</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Discord RPC</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>462</y>
+      <width>371</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>About</string>
+    </property>
+    <widget class="QPushButton" name="pushButton_about_father">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>20</y>
+       <width>251</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Github - Trainers-Legend-G</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_about_this">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>60</y>
+       <width>251</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Github - This Plugin</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>362</y>
+      <width>371</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Plugin Version</string>
+    </property>
+    <widget class="QPushButton" name="pushButton_plugin_update">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>259</x>
+       <y>25</y>
+       <width>91</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Update</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_version_now">
+     <property name="geometry">
+      <rect>
+       <x>22</x>
+       <y>28</y>
+       <width>241</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>version_now</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_version_latest">
+     <property name="geometry">
+      <rect>
+       <x>22</x>
+       <y>57</y>
+       <width>241</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>version_latest</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

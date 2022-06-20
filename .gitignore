@@ -127,3 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/.idea
+/.vs
+/localized_data/config_schema
+/main.build
+/main.dist
+/新建文本文档.txt
+/main_enable_console.exe
+/main.exe
+/epconf.json
+/config.json
