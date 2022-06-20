@@ -87,14 +87,14 @@ class UIChange(QWidget):
         self.uma_load_cmd = None
 
         self.window = Qm2()
-        self.window.setWindowIcon(QtGui.QIcon(":/img/jishao.ico"))
+        self.window.setWindowIcon(QtGui.QIcon(":/img/jia.ico"))
         self.ui = MainUI()
         self.ui.setupUi(self.window)
 
         self.mti = qtray.TrayIcon(self.window)
 
         self.window_config = QMn()
-        self.window_config.setWindowIcon(QtGui.QIcon(":/img/jishao.ico"))
+        self.window_config.setWindowIcon(QtGui.QIcon(":/img/jileba.ico"))
         self.ui_config = ConfigUI()
         self.ui_config.setupUi(self.window_config)
 

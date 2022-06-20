@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="img">
+    <file>jia.ico</file>
+    <file>jiji.ico</file>
+    <file>jileba.ico</file>
     <file>jio.ico</file>
     <file>jishao.ico</file>
   </qresource>
