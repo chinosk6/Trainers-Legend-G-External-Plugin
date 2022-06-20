@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="img">
+    <file>jio.ico</file>
+    <file>jishao.ico</file>
+  </qresource>
+</RCC>

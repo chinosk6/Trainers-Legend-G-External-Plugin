@@ -2,8 +2,8 @@ import threading
 import time
 import requests
 from .qtui.ui_import import MainUI, ConfigUI, RPCUI
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import QObject
+from .qtui import msrc_rc  # 不能删
+from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QDialog, QApplication, QMainWindow, QWidget
 import sys
 from .qt_jsonschema_form import WidgetBuilder
@@ -14,8 +14,10 @@ import webbrowser
 from . import uma_icon_data
 from . import discord_rpc
 from . import unzip_file
+from . import qtray
 
 
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
 rpc = discord_rpc.DiscordRpc()
 rpc_data = discord_rpc.RpcSaveData()
 start_time = int(time.time())
@@ -23,9 +25,49 @@ now_ver_label_fmt = "当前版本 (Now): {0}"
 latest_ver_label_fmt = "最新版本 (Latest): {0}"
 AUTOUPDATE_SUPPORT_SOURCE = ["github"]
 
+last_sub_close_time = 0
+
 
 class AutoUpdateError(Exception):
     pass
+
+
+class Qm2(QMainWindow):
+    def __init__(self):
+        super(Qm2, self).__init__()
+        self.close_callback = None
+
+    def add_close_callback(self, func):
+        self.close_callback = func
+
+    def changeEvent(self, a0: QtCore.QEvent) -> None:
+        if a0.type() == QtCore.QEvent.WindowStateChange:
+            if self.windowState() == QtCore.Qt.WindowMinimized:
+                if self.close_callback is not None:
+                    self.close_callback()
+                self.showMinimized()
+                self.setWindowFlags(QtCore.Qt.SplashScreen)
+                self.show()
+
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        if 0 <= time.time() - last_sub_close_time < 1.5:
+            a0.ignore()
+            return
+
+        req = QtWidgets.QMessageBox.information(self, "确定要退出吗?", "退出后将断开Discord RPC等服务",
+                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        if req != QtWidgets.QMessageBox.Yes:
+            a0.ignore()
+        else:
+            a0.accept()
+            QtWidgets.qApp.quit()
+
+
+class QMn(QMainWindow):
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        global last_sub_close_time
+        last_sub_close_time = time.time()
+
 
 class UIChange(QWidget):
     rpc_disconnect_signal = QtCore.pyqtSignal()
@@ -44,17 +86,24 @@ class UIChange(QWidget):
         self.cache_config_changes = None
         self.uma_load_cmd = None
 
-        self.window = QMainWindow()
+        self.window = Qm2()
+        self.window.setWindowIcon(QtGui.QIcon(":/img/jishao.ico"))
         self.ui = MainUI()
         self.ui.setupUi(self.window)
 
-        self.window_config = QMainWindow()
+        self.mti = qtray.TrayIcon(self.window)
+
+        self.window_config = QMn()
+        self.window_config.setWindowIcon(QtGui.QIcon(":/img/jishao.ico"))
         self.ui_config = ConfigUI()
         self.ui_config.setupUi(self.window_config)
 
-        self.window_rpc = QMainWindow()
+        self.window_rpc = QMn()
+        self.window_rpc.setWindowIcon(QtGui.QIcon(":/img/jishao.ico"))
         self.ui_rpc = RPCUI()
         self.ui_rpc.setupUi(self.window_rpc)
+
+        self.window.add_close_callback(self.close_other_window)  # 主窗口最小化时关闭其它窗口
 
         self.load_args()
         self.config_form = self.get_schema_form()
@@ -78,7 +127,6 @@ class UIChange(QWidget):
                 self.uma_load_cmd = " ".join(args[1:])
                 self.ui.pushButton_fast_reboot.setEnabled(True)
                 self.ui.pushButton_fast_reboot.setToolTip(self.uma_load_cmd)
-
 
     def regist_callback(self):
         self.ui.pushButton_config_settings.clicked.connect(self.show_config_settings_window)
@@ -108,6 +156,12 @@ class UIChange(QWidget):
         self.show_message_signal.connect(lambda x, y: self.show_message_box(x, y))
         self.update_finish_signal.connect(self.update_finish)
         self.update_btn_click_signal.connect(lambda *x: self.ui.pushButton_plugin_update.click())
+
+    def close_other_window(self):
+        mwindows = [self.window_rpc, self.window_config]
+        for w in mwindows:
+            if w.isVisible() or w.isMinimized():
+                w.close()
 
     def init_gui(self):
         self.get_update_version()
@@ -157,6 +211,7 @@ del reboot.bat"""
         def inner(*args):
             if len(textedit.toPlainText()) > limit:
                 textedit.setText(textedit.toPlainText()[:limit])
+
         return inner
 
     def get_schema_form(self):
@@ -227,7 +282,6 @@ del reboot.bat"""
         rpc.set_image(large_image="icon_main", small_image=rpc_data.chara_icon_id)
         rpc.set_start_time(start_time if rpc_data.chara_show_timestamp else None)
 
-
     def rpc_button_connect_onclick(self, *args):
         state = rpc.change_state()
         if state == "started":
@@ -239,6 +293,7 @@ del reboot.bat"""
                     time.sleep(1)
                 self.rpc_change_connect_btn_text_signal.emit("true")
                 self.ui_rpc.pushButton_connect.setText("Disconnect Discord")
+
             threading.Thread(target=_inner).start()
 
         elif state == "closed":
@@ -261,7 +316,6 @@ del reboot.bat"""
 
         threading.Thread(target=_inner).start()
 
-
     def change_rpc_connect_btn_string(self, s: str):
         if s == "false":
             self.ui_rpc.pushButton_connect.setEnabled(False)
@@ -269,7 +323,6 @@ del reboot.bat"""
             self.ui_rpc.pushButton_connect.setEnabled(True)
         else:
             self.ui_rpc.pushButton_connect.setText(s)
-
 
     def get_update_version(self):
         def _():
@@ -394,5 +447,7 @@ del reboot.bat"""
 
     def ui_run_main(self):
         self.window.show()
+        self.mti.show()
         exit_code = self.app.exec_()
+        # QtWidgets.qApp.quit()
         sys.exit(exit_code)
