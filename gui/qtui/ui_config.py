@@ -34,6 +34,9 @@ class Ui_MainWindow(object):
         self.pushButton_save = QtWidgets.QPushButton(self.groupBox)
         self.pushButton_save.setGeometry(QtCore.QRect(435, 660, 141, 51))
         self.pushButton_save.setObjectName("pushButton_save")
+        self.label = QtWidgets.QLabel(self.groupBox)
+        self.label.setGeometry(QtCore.QRect(587, 680, 411, 31))
+        self.label.setObjectName("label")
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -44,3 +47,4 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "config - Trainers-Legend-G"))
         self.groupBox.setTitle(_translate("MainWindow", "Config settings"))
         self.pushButton_save.setText(_translate("MainWindow", "Save"))
+        self.label.setText(_translate("MainWindow", "* Effective after restarting the game."))

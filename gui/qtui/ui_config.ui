@@ -67,6 +67,19 @@
       <string>Save</string>
      </property>
     </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>587</x>
+       <y>680</y>
+       <width>411</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>* Effective after restarting the game.</string>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>
