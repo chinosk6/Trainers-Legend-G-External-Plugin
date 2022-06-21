@@ -6,9 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>886</width>
+    <width>1036</width>
     <height>741</height>
    </rect>
+  </property>
+  <property name="font">
+   <font>
+    <family>Microsoft YaHei</family>
+   </font>
   </property>
   <property name="windowTitle">
    <string>config - Trainers-Legend-G</string>
@@ -19,7 +24,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>861</width>
+      <width>1011</width>
       <height>721</height>
      </rect>
     </property>
@@ -31,7 +36,7 @@
       <rect>
        <x>20</x>
        <y>30</y>
-       <width>821</width>
+       <width>971</width>
        <height>621</height>
       </rect>
      </property>
@@ -43,7 +48,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>819</width>
+        <width>969</width>
         <height>619</height>
        </rect>
       </property>
@@ -52,14 +57,14 @@
     <widget class="QPushButton" name="pushButton_save">
      <property name="geometry">
       <rect>
-       <x>330</x>
+       <x>435</x>
        <y>660</y>
        <width>141</width>
        <height>51</height>
       </rect>
      </property>
      <property name="text">
-      <string>Save Changes</string>
+      <string>Save</string>
      </property>
     </widget>
    </widget>

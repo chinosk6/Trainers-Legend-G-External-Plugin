@@ -15,6 +15,9 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(393, 580)
+        font = QtGui.QFont()
+        font.setFamily("Microsoft YaHei")
+        MainWindow.setFont(font)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
@@ -71,3 +74,4 @@ class Ui_MainWindow(object):
         self.pushButton_plugin_update.setText(_translate("MainWindow", "Update"))
         self.label_version_now.setText(_translate("MainWindow", "version_now"))
         self.label_version_latest.setText(_translate("MainWindow", "version_latest"))
+

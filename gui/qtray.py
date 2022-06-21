@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from .qtui import msrc_rc
+import os
 
 
 class TrayIcon(QtWidgets.QSystemTrayIcon):
@@ -34,7 +35,9 @@ class TrayIcon(QtWidgets.QSystemTrayIcon):
         self.ui.show()
 
     def quit(self):
+        self.setVisible(False)
         QtWidgets.qApp.quit()
+        os._exit(0)
 
     def onIconClicked(self, reason):
         if reason == 2 or reason == 3:

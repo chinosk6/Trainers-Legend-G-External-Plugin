@@ -6,7 +6,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from .signal import Signal
 from .utils import is_concrete_schema, iter_layout_widgets, state_property
 
-
+# from . import WidgetBuilder
 class SchemaWidgetMixin:
     on_changed = Signal()
 
@@ -14,6 +14,7 @@ class SchemaWidgetMixin:
     INVALID_COLOUR = '#f6989d'
 
     def __init__(self, schema: dict, ui_schema: dict, widget_builder: 'WidgetBuilder', **kwargs):
+        kwargs.pop("labeltextswitch") if "labeltextswitch" in kwargs else ...
         super().__init__(**kwargs)
 
         self.schema = schema
@@ -548,6 +549,7 @@ class ObjectSchemaWidget(SchemaWidgetMixin, QtWidgets.QGroupBox):
     def populate_from_schema(self, schema: dict, ui_schema: dict, widget_builder: 'WidgetBuilder'
                              ) -> Dict[str, QtWidgets.QWidget]:
         layout = QtWidgets.QFormLayout()
+        layout.setSpacing(15)  # 设置行间距
         self.setLayout(layout)
         layout.setAlignment(QtCore.Qt.AlignTop)
         self.setFlat(False)
@@ -569,11 +571,41 @@ class ObjectSchemaWidget(SchemaWidgetMixin, QtWidgets.QGroupBox):
             label = sub_schema.get("title", name)
             label = QtWidgets.QLabel(label)
             if "description" in sub_schema:
-                label.setToolTip(sub_schema["description"])
+                # label.setToolTip(sub_schema["description"])
+                label.setToolTip(name)
+                label.setText("• " + "\n".join(self.wholestrp(sub_schema["description"], 35)))  # 修改部分
+            # label.setFont(QtGui.QFont("Microsoft YaHei"))
             layout.addRow(label, widget)
             widgets[name] = widget
 
         return widgets
+
+    @staticmethod
+    def strp(inputstr, step=1):
+        a = inputstr
+        k = step if ObjectSchemaWidget.checkChinese(inputstr) else int(step * 1.5)
+        pl = []
+        if len(a) % k == 0:
+            plus = 1
+        else:
+            plus = 2
+        for n in range(int(len(a) / k) + plus):
+            pl.append(a[(n - 1) * k: n * k])
+        return pl[1:]
+
+    @staticmethod
+    def wholestrp(inputstr, step=1, englishfmt=True):
+        ret = []
+        for i in inputstr.split("\n"):
+            ret += ObjectSchemaWidget.strp(i, step)
+        return ret
+
+    @staticmethod
+    def checkChinese(inputstr):
+        for chart in inputstr:
+            if u'\u4e00' <= chart <= u'\u9fff':
+                return True
+        return False
 
 
 class EnumSchemaWidget(SchemaWidgetMixin, QtWidgets.QComboBox):

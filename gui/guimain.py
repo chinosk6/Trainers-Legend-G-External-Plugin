@@ -18,11 +18,14 @@ from . import qtray
 
 
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
+local_language = ctypes.windll.kernel32.GetSystemDefaultUILanguage()
+chinese_lang_id = [0x0c04, 0x1404, 0x0804, 0x1004, 0x0404]
+# chinese_lang_id = []
 rpc = discord_rpc.DiscordRpc()
 rpc_data = discord_rpc.RpcSaveData()
 start_time = int(time.time())
-now_ver_label_fmt = "当前版本 (Now): {0}"
-latest_ver_label_fmt = "最新版本 (Latest): {0}"
+now_ver_label_fmt = "当前版本: {0}" if local_language in chinese_lang_id else "Now Version: {0}"
+latest_ver_label_fmt = "最新版本: {0}" if local_language in chinese_lang_id else "Latest Version: {0}"
 AUTOUPDATE_SUPPORT_SOURCE = ["github"]
 
 last_sub_close_time = 0
@@ -61,6 +64,7 @@ class Qm2(QMainWindow):
         else:
             a0.accept()
             QtWidgets.qApp.quit()
+            os._exit(0)
 
 
 class QMn(QMainWindow):
@@ -81,6 +85,19 @@ class UIChange(QWidget):
 
     def __init__(self):
         self.app = QApplication(sys.argv)
+
+        if local_language in chinese_lang_id:
+            self.trans = QtCore.QTranslator()
+            self.trans.load(":/trans/main_ui.qm")
+            self.trans2 = QtCore.QTranslator()
+            self.trans2.load(":/trans/ui_rpc.qm")
+            self.trans3 = QtCore.QTranslator()
+            self.trans3.load(":/trans/ui_config.qm")
+
+            self.app.installTranslator(self.trans)
+            self.app.installTranslator(self.trans2)
+            self.app.installTranslator(self.trans3)
+
         super(UIChange, self).__init__()
         self.uma_path = "."
         self.cache_config_changes = None
@@ -124,7 +141,7 @@ class UIChange(QWidget):
                 base_path = os.path.split(args[1])[0]
                 if base_path != "":
                     self.uma_path = base_path
-                self.uma_load_cmd = " ".join(args[1:])
+                self.uma_load_cmd = "\"" + "\" \"".join(args[1:]) + "\""
                 self.ui.pushButton_fast_reboot.setEnabled(True)
                 self.ui.pushButton_fast_reboot.setToolTip(self.uma_load_cmd)
 
@@ -180,10 +197,12 @@ taskkill /im "umamusume.exe" >NUL
 tasklist | find /i "umamusume.exe" >NUL
 if %ERRORLEVEL% == 0 goto waitloop
 
-start {self.uma_load_cmd}
-del reboot.bat"""
+start "" {self.uma_load_cmd}
+del reboot.bat & exit"""
                         )
-            os.system("reboot.bat")
+            os.system("start reboot.bat & exit")
+            self.setVisible(False)
+            QtWidgets.qApp.quit()
             os._exit(0)
 
     def save_config_changes(self, *args):
@@ -216,8 +235,7 @@ del reboot.bat"""
 
     def get_schema_form(self):
         base_path = self.uma_path
-        local_language = ctypes.windll.kernel32.GetSystemDefaultUILanguage()
-        if local_language not in [0x0c04, 0x1404, 0x0804, 0x1004, 0x0404]:
+        if local_language not in chinese_lang_id:
             schema_file = f"{base_path}/localized_data/config_schema/config_en.schema.json"
             if not os.path.isfile(schema_file):
                 schema_file = f"{base_path}/localized_data/config_schema/config.schema.json"
@@ -451,3 +469,4 @@ del reboot.bat"""
         exit_code = self.app.exec_()
         # QtWidgets.qApp.quit()
         sys.exit(exit_code)
+        os._exit(exit_code)

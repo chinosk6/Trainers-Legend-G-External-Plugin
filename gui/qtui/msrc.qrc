@@ -6,4 +6,9 @@
     <file>jio.ico</file>
     <file>jishao.ico</file>
   </qresource>
+  <qresource prefix="trans">
+    <file>main_ui.qm</file>
+    <file>ui_config.qm</file>
+    <file>ui_rpc.qm</file>
+  </qresource>
 </RCC>

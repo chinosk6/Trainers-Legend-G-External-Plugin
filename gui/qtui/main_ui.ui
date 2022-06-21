@@ -10,6 +10,11 @@
     <height>580</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Microsoft YaHei</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Trainers-Legend-G External Plugin</string>
   </property>

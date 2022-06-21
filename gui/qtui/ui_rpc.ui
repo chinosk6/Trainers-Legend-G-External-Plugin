@@ -10,6 +10,11 @@
     <height>531</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Microsoft YaHei</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>umamusume RPC</string>
   </property>
@@ -65,11 +70,11 @@
        <x>20</x>
        <y>93</y>
        <width>591</width>
-       <height>16</height>
+       <height>21</height>
       </rect>
      </property>
      <property name="text">
-      <string>What are you doing? (less than 128 characters)</string>
+      <string>What are you doing? (Greater than 2 and less than 128 characters)</string>
      </property>
     </widget>
     <widget class="QTextEdit" name="textEdit_text_1">
@@ -102,7 +107,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>How are you feeling now? (less than 128 characters)</string>
+      <string>How are you feeling now? (Greater than 2 and less than 128 characters)</string>
      </property>
     </widget>
     <widget class="QCheckBox" name="checkBox_show_timestamp">
@@ -111,7 +116,7 @@
        <x>32</x>
        <y>375</y>
        <width>171</width>
-       <height>19</height>
+       <height>21</height>
       </rect>
      </property>
      <property name="text">
@@ -150,7 +155,7 @@
        <x>231</x>
        <y>375</y>
        <width>401</width>
-       <height>19</height>
+       <height>21</height>
       </rect>
      </property>
      <property name="text">
