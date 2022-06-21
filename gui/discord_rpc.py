@@ -4,14 +4,15 @@ import time
 import json
 import os
 import asyncio
+from typing import Optional
 
 
 class RpcSaveData:
     def __init__(self):
-        self.chara_icon_name = ""
-        self.chara_icon_id = ""
-        self.chara_icon_text1 = ""
-        self.chara_icon_text2 = ""
+        self.chara_icon_name: Optional[str] = None
+        self.chara_icon_id: Optional[str] = None
+        self.chara_icon_text1: Optional[str] = None
+        self.chara_icon_text2: Optional[str] = None
         self.chara_show_timestamp = False
         self.auto_conn = False
 
@@ -21,21 +22,29 @@ class RpcSaveData:
         if os.path.isfile("epconf.json"):
             with open("epconf.json", "r", encoding="utf8") as f:
                 data = json.load(f)
-                self.chara_icon_name = data["chara_icon_name"]
-                self.chara_icon_id = data["chara_icon_id"]
-                self.chara_icon_text1 = data["chara_icon_text1"][:128]
-                self.chara_icon_text2 = data["chara_icon_text2"][:128]
-                self.chara_show_timestamp = data["chara_show_timestamp"]
-                self.auto_conn = data["auto_conn"]
+                self.chara_icon_name = self.noneifempty(data["chara_icon_name"])
+                self.chara_icon_id = self.noneifempty(data["chara_icon_id"])
+                self.chara_icon_text1 = self.noneifempty(data["chara_icon_text1"][:128])
+                self.chara_icon_text2 = self.noneifempty(data["chara_icon_text2"][:128])
+                self.chara_show_timestamp = self.noneifempty(data["chara_show_timestamp"])
+                self.auto_conn = self.noneifempty(data["auto_conn"])
+
+    @staticmethod
+    def noneifempty(data):
+        if isinstance(data, str):
+            data = data.strip()
+            if data == "":
+                return None
+        return data
 
     def write_config(self):
         with open("epconf.json", "w", encoding="utf8") as f:
-            data = {"chara_icon_name": self.chara_icon_name,
-                    "chara_icon_id": self.chara_icon_id,
-                    "chara_icon_text1": self.chara_icon_text1[:128],
-                    "chara_icon_text2": self.chara_icon_text2[:128],
-                    "chara_show_timestamp": self.chara_show_timestamp,
-                    "auto_conn": self.auto_conn
+            data = {"chara_icon_name": self.noneifempty(self.chara_icon_name),
+                    "chara_icon_id": self.noneifempty(self.chara_icon_id),
+                    "chara_icon_text1": self.noneifempty(self.chara_icon_text1[:128]),
+                    "chara_icon_text2": self.noneifempty(self.chara_icon_text2[:128]),
+                    "chara_show_timestamp": self.noneifempty(self.chara_show_timestamp),
+                    "auto_conn": self.noneifempty(self.auto_conn)
                     }
             json.dump(data, f, indent=4, ensure_ascii=False)
 
@@ -55,6 +64,7 @@ class DiscordRpc:
 
     def set_value(self, key, value, empty_is_none=True):
         if empty_is_none and value == "":
+            self.base_data[key] = None
             return
         if value is not None:
             self.base_data[key] = value
@@ -88,7 +98,18 @@ class DiscordRpc:
         except BaseException as e:
             print("close server failed", e)
 
+    def check_base_data(self):
+        rm_k = []
+        for k in self.base_data:
+            v = self.base_data[k]
+            if isinstance(v, str):
+                if not 2 < len(v.strip()) < 128:
+                    rm_k.append(k)
+        for i in rm_k:
+            self.base_data.pop(i)
+
     def update_state(self):
+        self.check_base_data()
         self.rich_presence.update(**self.base_data)
 
 
