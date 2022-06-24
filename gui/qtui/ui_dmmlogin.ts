@@ -81,7 +81,7 @@
     <message>
         <location filename="ui_dmmlogin.py" line="111"/>
         <source>Launching game directly without opening DMM Game Player.</source>
-        <translation type="unfinished">不需要启动DMM Game Player, 直接从启动游戏.</translation>
+        <translation type="unfinished">不需要启动DMM Game Player, 直接启动游戏.</translation>
     </message>
     <message>
         <location filename="ui_dmmlogin.py" line="112"/>

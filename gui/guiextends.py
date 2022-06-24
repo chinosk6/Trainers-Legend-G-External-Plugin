@@ -155,7 +155,7 @@ class UIChange(QWidget):
         if os.path.isfile(f"{self.uma_path}/umamusume.exe"):
             self.ui.pushButton_fast_login.setEnabled(True)
         else:
-            self.ui.pushButton_fast_login.setEnabled(True)  # TODO 记得改回False
+            self.ui.pushButton_fast_login.setEnabled(False)  # TODO 记得改回False
 
     def regist_callback(self):
         self.ui.pushButton_config_settings.clicked.connect(self.show_config_settings_window)
