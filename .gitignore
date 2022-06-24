@@ -138,3 +138,5 @@ dmypy.json
 /epconf.json
 /config.json
 /legend_g_plugin.exe
+/msedgedriver.exe
+/chromedriver.exe

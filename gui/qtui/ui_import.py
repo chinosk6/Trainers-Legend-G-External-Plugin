@@ -1,4 +1,4 @@
-from . import main_ui, ui_config, ui_rpc
+from . import main_ui, ui_config, ui_rpc, ui_dmmlogin, ui_dmm_help
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QWidget
 
@@ -27,4 +27,22 @@ class RPCUI(ui_rpc.Ui_MainWindow, QWidget):
 
     def setupUi(self, MainWindow):
         super(RPCUI, self).setupUi(MainWindow)
+        MainWindow.setFixedSize(MainWindow.rect().width(), MainWindow.rect().height())
+
+
+class DMMUI(ui_dmmlogin.Ui_MainWindow, QWidget):
+    def __init__(self):
+        super(DMMUI, self).__init__()
+
+    def setupUi(self, MainWindow):
+        super(DMMUI, self).setupUi(MainWindow)
+        MainWindow.setFixedSize(MainWindow.rect().width(), MainWindow.rect().height())
+
+
+class DMMHelpUI(ui_dmm_help.Ui_MainWindow, QWidget):
+    def __init__(self):
+        super(DMMHelpUI, self).__init__()
+
+    def setupUi(self, MainWindow):
+        super(DMMHelpUI, self).setupUi(MainWindow)
         MainWindow.setFixedSize(MainWindow.rect().width(), MainWindow.rect().height())

@@ -39,5 +39,5 @@ if __name__ == '__main__':
     # self_name = os.path.split(sys.argv[0])[1]
     # check_runs(self_name)
 
-    uic = gui.UIChange()
+    uic = gui.GuiMain()
     uic.ui_run_main()

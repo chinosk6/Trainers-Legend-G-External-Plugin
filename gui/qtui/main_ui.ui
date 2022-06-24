@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>393</width>
-    <height>580</height>
+    <height>669</height>
    </rect>
   </property>
   <property name="font">
@@ -25,7 +25,7 @@
       <x>10</x>
       <y>10</y>
       <width>371</width>
-      <height>341</height>
+      <height>431</height>
      </rect>
     </property>
     <property name="title">
@@ -73,12 +73,28 @@
       <string>Discord RPC</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton_fast_login">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>340</y>
+       <width>221</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Game Fast Login</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_2">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>462</y>
+      <y>550</y>
       <width>371</width>
       <height>101</height>
      </rect>
@@ -117,7 +133,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>362</y>
+      <y>450</y>
       <width>371</width>
       <height>91</height>
      </rect>

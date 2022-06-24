@@ -7,6 +7,7 @@
     <file>jishao.ico</file>
   </qresource>
   <qresource prefix="trans">
+    <file>ui_dmmlogin.qm</file>
     <file>main_ui.qm</file>
     <file>ui_config.qm</file>
     <file>ui_rpc.qm</file>

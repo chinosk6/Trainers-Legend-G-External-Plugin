@@ -15,6 +15,14 @@ class RpcSaveData:
         self.chara_icon_text2: Optional[str] = None
         self.chara_show_timestamp = False
         self.auto_conn = False
+        self.edge_path: Optional[str] = None
+        self.email: Optional[str] = None
+        self.password: Optional[str] = None
+        self.proxy_url: Optional[str] = None
+        self.enable_proxy = False
+        self.login_open_edge = False
+        self.dmm_cookie_cache: Optional[dict] = None
+        self.dmm_browser_type = 0  # 0-edge 1-chrome 2-firefox
 
         self.read_config()
 
@@ -28,6 +36,15 @@ class RpcSaveData:
                 self.chara_icon_text2 = self.noneifempty(data["chara_icon_text2"][:128])
                 self.chara_show_timestamp = self.noneifempty(data["chara_show_timestamp"])
                 self.auto_conn = self.noneifempty(data["auto_conn"])
+
+                self.edge_path = data["edge_path"] if "edge_path" in data else "msedgedriver.exe"
+                self.email = data["email"] if "email" in data else ""
+                self.password = data["password"] if "password" in data else ""
+                self.proxy_url = data["proxy_url"] if "proxy_url" in data else ""
+                self.enable_proxy = data["enable_proxy"] if "enable_proxy" in data else False
+                self.login_open_edge = data["login_open_edge"] if "login_open_edge" in data else False
+                self.dmm_cookie_cache = data["dmm_cookie_cache"] if "dmm_cookie_cache" in data else None
+                self.dmm_browser_type = data["dmm_browser_type"] if "dmm_browser_type" in data else 0
 
     @staticmethod
     def noneifempty(data):
@@ -44,7 +61,15 @@ class RpcSaveData:
                     "chara_icon_text1": self.noneifempty(self.chara_icon_text1[:128]),
                     "chara_icon_text2": self.noneifempty(self.chara_icon_text2[:128]),
                     "chara_show_timestamp": self.noneifempty(self.chara_show_timestamp),
-                    "auto_conn": self.noneifempty(self.auto_conn)
+                    "auto_conn": self.noneifempty(self.auto_conn),
+                    "edge_path": self.edge_path,
+                    "email": self.email,
+                    "password": self.password,
+                    "proxy_url": self.proxy_url,
+                    "enable_proxy": self.enable_proxy,
+                    "login_open_edge": self.login_open_edge,
+                    "dmm_cookie_cache": self.dmm_cookie_cache,
+                    "dmm_browser_type": self.dmm_browser_type
                     }
             json.dump(data, f, indent=4, ensure_ascii=False)
 
