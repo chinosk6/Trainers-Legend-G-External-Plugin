@@ -179,8 +179,12 @@ class UmaDmm:
             proxies=proxy
         )
 
-        self.log_callback(f"Get game launching arguments successfully.")
-        return json.loads(args.text)["data"]["execute_args"]
+        try:
+            ret = json.loads(args.text)["data"]["execute_args"]
+            self.log_callback(f"Get game launching arguments successfully.")
+            return ret
+        except:
+            raise LoginException(f"登录失败: {args.text}")
 
 
     def get_launch_args(self, cookie_cache=None):
@@ -200,9 +204,12 @@ class UmaDmm:
                 "launch_type": "LIB"
             }
             mac_address = get_mac_address()
-            hdd_serial = hashlib.sha256((",".join(
-                        item.SerialNumber.strip(" ") for item in wmi.WMI().Win32_PhysicalMedia()
-                    )).encode('UTF-8')).hexdigest()
+            try:
+                hdd_serial = hashlib.sha256((",".join(
+                            item.SerialNumber.strip(" ") for item in wmi.WMI().Win32_PhysicalMedia()
+                        )).encode('UTF-8')).hexdigest()
+            except:
+                hdd_serial = hashlib.sha256(f"{self.username}w{self.password}".encode('UTF-8')).hexdigest()
             motherboard = hashlib.sha256((hdd_serial + mac_address).encode('UTF-8')).hexdigest()
             launch_args = self._get_game_launch_args(game_info, get_ck, mac_address, hdd_serial, motherboard)
             return ReturnDMM(get_ck, launch_args)

@@ -120,7 +120,7 @@ class GuiMain(guiextends.UIChange):
         if is_success:
             self.dmm_login_success_signal.emit(get_args.launch_args)
 
-    def dmm_login_btn_onclick(self, *args):
+    def update_save_data(self):
         guiextends.rpc_data.edge_path = self.ui_dmm.lineEdit_edge_path.text()
         guiextends.rpc_data.email = self.ui_dmm.lineEdit_dmm_account.text()
         guiextends.rpc_data.password = self.ui_dmm.lineEdit_dmm_passwd.text()
@@ -129,17 +129,23 @@ class GuiMain(guiextends.UIChange):
         guiextends.rpc_data.login_open_edge = self.ui_dmm.checkBox_open_browser_window.isChecked()
         guiextends.rpc_data.dmm_browser_type = self.ui_dmm.comboBox_browser_type.currentIndex()
 
+        guiextends.rpc_data.write_config()
+
+    def dmm_login_btn_onclick(self, *args):
+        self.update_save_data()
+
         if not os.path.isfile(guiextends.rpc_data.edge_path):
             self.update_dmm_log.emit(f"Edge Driver Not Found. "
                                      f"Download: https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver")
             return
-        guiextends.rpc_data.write_config()
 
         self.update_dmm_login_btn_signal.emit("false")
         self.dmm_button_login_cache_signal.emit("false")
         threading.Thread(target=self._login).start()
 
     def dmm_login_cache_btn_onclick(self, *args):
+        self.update_save_data()
+
         if not os.path.isfile(guiextends.rpc_data.edge_path):
             self.update_dmm_log.emit(f"Edge Driver Not Found. "
                                      f"Download: https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver")
