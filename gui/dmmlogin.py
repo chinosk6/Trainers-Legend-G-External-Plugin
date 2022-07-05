@@ -1,4 +1,3 @@
-import time
 import wmi
 import pythoncom
 import requests
@@ -188,7 +187,6 @@ class UmaDmm:
 
 
     def get_launch_args(self, cookie_cache=None):
-        # self.log_callback(get_user_cookie("b2248589280@gmail.com", "wocaoniubia66", proxy_url))
         try:
             pythoncom.CoInitialize()
             if cookie_cache is None:

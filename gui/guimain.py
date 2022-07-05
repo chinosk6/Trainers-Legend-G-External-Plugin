@@ -6,15 +6,7 @@ from .qtui import msrc_rc  # 不能删
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QDialog, QApplication, QMainWindow, QWidget, QFileDialog
 import sys
-from .qt_jsonschema_form import WidgetBuilder
-import json
 import os
-import ctypes
-import webbrowser
-from . import uma_icon_data
-from . import discord_rpc
-from . import unzip_file
-from . import qtray
 from . import dmmlogin
 from . import guiextends
 

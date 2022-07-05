@@ -39,9 +39,13 @@ class Qm2(QMainWindow):
     def __init__(self):
         super(Qm2, self).__init__()
         self.close_callback = None
+        self.quit_callback = None
 
     def add_close_callback(self, func):
         self.close_callback = func
+
+    def add_quit_callback(self, func):
+        self.quit_callback = func
 
     def changeEvent(self, a0: QtCore.QEvent) -> None:
         if a0.type() == QtCore.QEvent.WindowStateChange:
@@ -62,6 +66,8 @@ class Qm2(QMainWindow):
         if req != QtWidgets.QMessageBox.Yes:
             a0.ignore()
         else:
+            if self.quit_callback is not None:
+                self.quit_callback()
             a0.accept()
             QtWidgets.qApp.quit()
             os._exit(0)
@@ -115,7 +121,7 @@ class UIChange(QWidget):
         self.ui = MainUI()
         self.ui.setupUi(self.window)
 
-        self.mti = qtray.TrayIcon(self.window)
+        self.mti = qtray.TrayIcon(self.window, self)
 
         self.window_config = QMn()
         self.window_config.setWindowIcon(QtGui.QIcon(":/img/jileba.ico"))
@@ -128,6 +134,7 @@ class UIChange(QWidget):
         self.ui_rpc.setupUi(self.window_rpc)
 
         self.window.add_close_callback(self.close_other_window)  # 主窗口最小化时关闭其它窗口
+        self.window.add_quit_callback(self.main_on_quit)
 
         self.load_args()
         self.config_form = self.get_schema_form()
@@ -191,6 +198,9 @@ class UIChange(QWidget):
         for w in mwindows:
             if w.isVisible() or w.isMinimized():
                 w.close()
+
+    def main_on_quit(self):
+        self.mti.quit()
 
     def init_gui(self):
         self.get_update_version()

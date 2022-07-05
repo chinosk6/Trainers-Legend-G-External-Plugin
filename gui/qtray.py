@@ -5,12 +5,14 @@ import os
 
 class TrayIcon(QtWidgets.QSystemTrayIcon):
     def __init__(self, MainWindow, parent=None):
+        self._parent = parent
         super(TrayIcon, self).__init__(parent)
         self.ui = MainWindow
         self.createMenu()
 
     def createMenu(self):
-        self.menu = QtWidgets.QMenu()
+        self.menu = QtWidgets.QMenu(self._parent)
+        self.menu.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.showAction1 = QtWidgets.QAction("Show", self, triggered=self.show_window)
         # self.showAction2 = QtWidgets.QAction("显示通知", self, triggered=self.showMsg)
         self.quitAction = QtWidgets.QAction("Exit", self, triggered=self.quit)
