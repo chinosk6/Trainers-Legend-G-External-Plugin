@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>690</width>
-    <height>531</height>
+    <width>683</width>
+    <height>540</height>
    </rect>
   </property>
   <property name="font">
@@ -19,150 +19,114 @@
    <string>umamusume RPC</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QGroupBox" name="groupBox">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>12</y>
-      <width>651</width>
-      <height>501</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Discord Rich Presence Config</string>
-    </property>
-    <widget class="QComboBox" name="comboBox_char_icon">
-     <property name="geometry">
-      <rect>
-       <x>156</x>
-       <y>39</y>
-       <width>291</width>
-       <height>22</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label">
-     <property name="geometry">
-      <rect>
-       <x>22</x>
-       <y>41</y>
-       <width>151</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>character icon</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="lineEdit_char_icon">
-     <property name="geometry">
-      <rect>
-       <x>466</x>
-       <y>39</y>
-       <width>151</width>
-       <height>21</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_2">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>93</y>
-       <width>591</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>What are you doing? (Greater than 2 and less than 128 characters)</string>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="textEdit_text_1">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>119</y>
-       <width>601</width>
-       <height>87</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="textEdit_text_2">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>259</y>
-       <width>601</width>
-       <height>87</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_3">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>233</y>
-       <width>601</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>How are you feeling now? (Greater than 2 and less than 128 characters)</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="checkBox_show_timestamp">
-     <property name="geometry">
-      <rect>
-       <x>32</x>
-       <y>375</y>
-       <width>171</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>show timestamp</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_connect">
-     <property name="geometry">
-      <rect>
-       <x>360</x>
-       <y>420</y>
-       <width>201</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Connect To Discord</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_save_changes">
-     <property name="geometry">
-      <rect>
-       <x>69</x>
-       <y>420</y>
-       <width>201</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Save Changes</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="checkBox_auto_conn">
-     <property name="geometry">
-      <rect>
-       <x>231</x>
-       <y>375</y>
-       <width>401</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>automatically connect to Discord on startup</string>
-     </property>
-    </widget>
-   </widget>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Discord Rich Presence Config</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,1,7,1,7,2,3">
+       <property name="spacing">
+        <number>7</number>
+       </property>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,10,6">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>character icon</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_char_icon"/>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_char_icon"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>What are you doing? (Greater than 2 and less than 128 characters)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="textEdit_text_1"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>How are you feeling now? (Greater than 2 and less than 128 characters)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="textEdit_text_2"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QCheckBox" name="checkBox_show_timestamp">
+           <property name="text">
+            <string>show timestamp</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox_auto_conn">
+           <property name="text">
+            <string>automatically connect to Discord on startup</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="spacing">
+          <number>80</number>
+         </property>
+         <property name="leftMargin">
+          <number>80</number>
+         </property>
+         <property name="rightMargin">
+          <number>80</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="pushButton_save_changes">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>10000</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Save Changes</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_connect">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>10000</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Connect To Discord</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

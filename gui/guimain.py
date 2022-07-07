@@ -22,12 +22,12 @@ class GuiMain(guiextends.UIChange):
     def __init__(self):
         super(GuiMain, self).__init__()
 
-        self.window_dmm = guiextends.QMn()
+        self.window_dmm = guiextends.QMn(self.window)
         self.window_dmm.setWindowIcon(QtGui.QIcon(":/img/jia.ico"))
         self.ui_dmm = DMMUI()
         self.ui_dmm.setupUi(self.window_dmm)
 
-        self.window_dmmhelp = guiextends.QMn()
+        self.window_dmmhelp = guiextends.QMn(self.window)
         self.window_dmmhelp.setWindowIcon(QtGui.QIcon(":/img/jia.ico"))
         self.ui_dmmhelp = DMMHelpUI()
         self.ui_dmmhelp.setupUi(self.window_dmmhelp)

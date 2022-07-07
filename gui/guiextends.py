@@ -57,9 +57,9 @@ class Qm2(QMainWindow):
                 self.show()
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
-        if 0 <= time.time() - last_sub_close_time < 1.5:
-            a0.ignore()
-            return
+        # if 0 <= time.time() - last_sub_close_time < 1.5:
+        #     a0.ignore()
+        #     return
 
         req = QtWidgets.QMessageBox.information(self, "确定要退出吗?", "退出后将断开Discord RPC等服务",
                                                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
@@ -123,12 +123,12 @@ class UIChange(QWidget):
 
         self.mti = qtray.TrayIcon(self.window, self)
 
-        self.window_config = QMn()
+        self.window_config = QMn(self.window)
         self.window_config.setWindowIcon(QtGui.QIcon(":/img/jileba.ico"))
         self.ui_config = ConfigUI()
         self.ui_config.setupUi(self.window_config)
 
-        self.window_rpc = QMn()
+        self.window_rpc = QMn(self.window)
         self.window_rpc.setWindowIcon(QtGui.QIcon(":/img/jishao.ico"))
         self.ui_rpc = RPCUI()
         self.ui_rpc.setupUi(self.window_rpc)
@@ -210,7 +210,7 @@ class UIChange(QWidget):
 
     def game_fast_reboot(self, *args):
         if self.uma_load_cmd is not None:
-            with open("reboot.bat", "w", encoding="utf8") as f:
+            with open("reboot.bat", "w", encoding=None) as f:
                 f.write(f"""@echo off
 setlocal
 taskkill /im "umamusume.exe" >NUL
@@ -224,6 +224,7 @@ del reboot.bat & exit"""
                         )
             os.system("start reboot.bat & exit")
             self.setVisible(False)
+            self.main_on_quit()
             QtWidgets.qApp.quit()
             os._exit(0)
 

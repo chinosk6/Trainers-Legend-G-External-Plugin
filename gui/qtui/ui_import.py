@@ -9,7 +9,7 @@ class MainUI(main_ui.Ui_MainWindow, QWidget):
 
     def setupUi(self, MainWindow):
         super(MainUI, self).setupUi(MainWindow)
-        MainWindow.setFixedSize(MainWindow.rect().width(), MainWindow.rect().height())
+        # MainWindow.setFixedSize(MainWindow.rect().width(), MainWindow.rect().height())
 
 
 class ConfigUI(ui_config.Ui_MainWindow, QWidget):
@@ -18,7 +18,7 @@ class ConfigUI(ui_config.Ui_MainWindow, QWidget):
 
     def setupUi(self, MainWindow):
         super(ConfigUI, self).setupUi(MainWindow)
-        MainWindow.setFixedSize(MainWindow.rect().width(), MainWindow.rect().height())
+        # MainWindow.setFixedSize(MainWindow.rect().width(), MainWindow.rect().height())
 
 
 class RPCUI(ui_rpc.Ui_MainWindow, QWidget):
@@ -27,7 +27,7 @@ class RPCUI(ui_rpc.Ui_MainWindow, QWidget):
 
     def setupUi(self, MainWindow):
         super(RPCUI, self).setupUi(MainWindow)
-        MainWindow.setFixedSize(MainWindow.rect().width(), MainWindow.rect().height())
+        # MainWindow.setFixedSize(MainWindow.rect().width(), MainWindow.rect().height())
 
 
 class DMMUI(ui_dmmlogin.Ui_MainWindow, QWidget):
@@ -36,7 +36,7 @@ class DMMUI(ui_dmmlogin.Ui_MainWindow, QWidget):
 
     def setupUi(self, MainWindow):
         super(DMMUI, self).setupUi(MainWindow)
-        MainWindow.setFixedSize(MainWindow.rect().width(), MainWindow.rect().height())
+        # MainWindow.setFixedSize(MainWindow.rect().width(), MainWindow.rect().height())
 
 
 class DMMHelpUI(ui_dmm_help.Ui_MainWindow, QWidget):
@@ -45,4 +45,4 @@ class DMMHelpUI(ui_dmm_help.Ui_MainWindow, QWidget):
 
     def setupUi(self, MainWindow):
         super(DMMHelpUI, self).setupUi(MainWindow)
-        MainWindow.setFixedSize(MainWindow.rect().width(), MainWindow.rect().height())
+        # MainWindow.setFixedSize(MainWindow.rect().width(), MainWindow.rect().height())

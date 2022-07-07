@@ -14,22 +14,26 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(690, 448)
+        MainWindow.resize(671, 521)
         font = QtGui.QFont()
         font.setFamily("Microsoft YaHei")
         MainWindow.setFont(font)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
+        self.verticalLayout.setObjectName("verticalLayout")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QtCore.QRect(20, 10, 661, 421))
         self.groupBox.setObjectName("groupBox")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.groupBox)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.label = QtWidgets.QLabel(self.groupBox)
+        self.label.setObjectName("label")
+        self.verticalLayout_2.addWidget(self.label)
         self.textEdit = QtWidgets.QTextEdit(self.groupBox)
-        self.textEdit.setGeometry(QtCore.QRect(10, 60, 641, 341))
         self.textEdit.setReadOnly(True)
         self.textEdit.setObjectName("textEdit")
-        self.label = QtWidgets.QLabel(self.groupBox)
-        self.label.setGeometry(QtCore.QRect(20, 22, 621, 31))
-        self.label.setObjectName("label")
+        self.verticalLayout_2.addWidget(self.textEdit)
+        self.verticalLayout.addWidget(self.groupBox)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -39,6 +43,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "DMM Fast Login Help"))
         self.groupBox.setTitle(_translate("MainWindow", "Help"))
+        self.label.setText(_translate("MainWindow", "注意: 此配置为进阶教程。若您无法理解教程内容, 请关闭此页面"))
         self.textEdit.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
@@ -58,4 +63,3 @@ class Ui_MainWindow(object):
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">   Proxifer配置教程: <span style=\" text-decoration: underline; color:#0000ff;\">https://github.com/MiddleRed/UmamusumeLauncher/issues/1</span></p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">完成以上步骤后, 游戏应该能够顺利启动, 且以后无需再次配置</p></body></html>"))
-        self.label.setText(_translate("MainWindow", "注意: 此配置为进阶教程。若您无法理解教程内容, 请关闭此页面"))
