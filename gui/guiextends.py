@@ -469,15 +469,14 @@ del reboot.bat & exit"""
                                             f"\n\n点击确认将关闭游戏进行更新, 您确认要更新吗?")
         if res == QtWidgets.QMessageBox.Yes:
             self.ui.pushButton_plugin_update.setEnabled(False)
-
+            open(f"{self.uma_path}/dontcloseext.lock", "wb").close()
             with open("gkill.bat", "w", encoding="utf8") as f:
                 f.write(f"""@echo off
             setlocal
             taskkill /im "umamusume.exe"
-            del gkill.bat"""
+            del gkill.bat & exit"""
                         )
             os.system("gkill.bat")
-
             threading.Thread(target=download_file).start()
 
     def update_finish(self, *args):
