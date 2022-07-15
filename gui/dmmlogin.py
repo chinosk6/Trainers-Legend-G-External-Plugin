@@ -51,9 +51,9 @@ class UmaDmm:
         else:
             proxy = {"http": proxy_url, "https": proxy_url}
 
-        session = requests.session()
+        self.log_callback("Getting login url...")
 
-        req = session.get("https://apidgp-gameplayer.games.dmm.com/v5/loginurl", proxies=proxy)
+        req = requests.get("https://apidgp-gameplayer.games.dmm.com/v5/loginurl", proxies=proxy, timeout=30)
         loginurl = json.loads(req.text)["data"]["url"]
 
         self.log_callback("Setting up login browser...")

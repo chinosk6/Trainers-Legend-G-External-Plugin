@@ -29,48 +29,56 @@ class RpcSaveData:
     def read_config(self):
         if os.path.isfile("epconf.json"):
             with open("epconf.json", "r", encoding="utf8") as f:
-                data = json.load(f)
-                self.chara_icon_name = self.noneifempty(data["chara_icon_name"])
-                self.chara_icon_id = self.noneifempty(data["chara_icon_id"])
-                self.chara_icon_text1 = self.noneifempty(data["chara_icon_text1"][:128])
-                self.chara_icon_text2 = self.noneifempty(data["chara_icon_text2"][:128])
-                self.chara_show_timestamp = self.noneifempty(data["chara_show_timestamp"])
-                self.auto_conn = self.noneifempty(data["auto_conn"])
+                try:
+                    data = json.load(f)
+                    self.chara_icon_name = self.noneifempty(data["chara_icon_name"])
+                    self.chara_icon_id = self.noneifempty(data["chara_icon_id"])
+                    self.chara_icon_text1 = self.noneifempty(data["chara_icon_text1"], cut=128)
+                    self.chara_icon_text2 = self.noneifempty(data["chara_icon_text2"], cut=128)
+                    self.chara_show_timestamp = self.noneifempty(data["chara_show_timestamp"])
+                    self.auto_conn = self.noneifempty(data["auto_conn"])
 
-                self.edge_path = data["edge_path"] if "edge_path" in data else "msedgedriver.exe"
-                self.email = data["email"] if "email" in data else ""
-                self.password = data["password"] if "password" in data else ""
-                self.proxy_url = data["proxy_url"] if "proxy_url" in data else ""
-                self.enable_proxy = data["enable_proxy"] if "enable_proxy" in data else False
-                self.login_open_edge = data["login_open_edge"] if "login_open_edge" in data else False
-                self.dmm_cookie_cache = data["dmm_cookie_cache"] if "dmm_cookie_cache" in data else None
-                self.dmm_browser_type = data["dmm_browser_type"] if "dmm_browser_type" in data else 0
+                    self.edge_path = data["edge_path"] if "edge_path" in data else "msedgedriver.exe"
+                    self.email = data["email"] if "email" in data else ""
+                    self.password = data["password"] if "password" in data else ""
+                    self.proxy_url = data["proxy_url"] if "proxy_url" in data else ""
+                    self.enable_proxy = data["enable_proxy"] if "enable_proxy" in data else False
+                    self.login_open_edge = data["login_open_edge"] if "login_open_edge" in data else False
+                    self.dmm_cookie_cache = data["dmm_cookie_cache"] if "dmm_cookie_cache" in data else None
+                    self.dmm_browser_type = data["dmm_browser_type"] if "dmm_browser_type" in data else 0
+                except BaseException as e:
+                    print(f"配置文件读取失败: {e}")
+
 
     @staticmethod
-    def noneifempty(data):
+    def noneifempty(data, cut=None):
         if isinstance(data, str):
             data = data.strip()
             if data == "":
                 return None
+            return data if cut is None else data[:cut]
         return data
 
+    def get_data_dict(self):
+        return {"chara_icon_name": self.noneifempty(self.chara_icon_name),
+                "chara_icon_id": self.noneifempty(self.chara_icon_id),
+                "chara_icon_text1": self.noneifempty(self.chara_icon_text1, cut=128),
+                "chara_icon_text2": self.noneifempty(self.chara_icon_text2, cut=128),
+                "chara_show_timestamp": self.noneifempty(self.chara_show_timestamp),
+                "auto_conn": self.noneifempty(self.auto_conn),
+                "edge_path": self.edge_path,
+                "email": self.email,
+                "password": self.password,
+                "proxy_url": self.proxy_url,
+                "enable_proxy": self.enable_proxy,
+                "login_open_edge": self.login_open_edge,
+                "dmm_cookie_cache": self.dmm_cookie_cache,
+                "dmm_browser_type": self.dmm_browser_type
+                }
+
     def write_config(self):
+        data = self.get_data_dict()
         with open("epconf.json", "w", encoding="utf8") as f:
-            data = {"chara_icon_name": self.noneifempty(self.chara_icon_name),
-                    "chara_icon_id": self.noneifempty(self.chara_icon_id),
-                    "chara_icon_text1": self.noneifempty(self.chara_icon_text1[:128]),
-                    "chara_icon_text2": self.noneifempty(self.chara_icon_text2[:128]),
-                    "chara_show_timestamp": self.noneifempty(self.chara_show_timestamp),
-                    "auto_conn": self.noneifempty(self.auto_conn),
-                    "edge_path": self.edge_path,
-                    "email": self.email,
-                    "password": self.password,
-                    "proxy_url": self.proxy_url,
-                    "enable_proxy": self.enable_proxy,
-                    "login_open_edge": self.login_open_edge,
-                    "dmm_cookie_cache": self.dmm_cookie_cache,
-                    "dmm_browser_type": self.dmm_browser_type
-                    }
             json.dump(data, f, indent=4, ensure_ascii=False)
 
 
