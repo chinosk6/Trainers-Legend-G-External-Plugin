@@ -47,7 +47,8 @@ class RpcSaveData:
                     self.dmm_cookie_cache = data["dmm_cookie_cache"] if "dmm_cookie_cache" in data else None
                     self.dmm_browser_type = data["dmm_browser_type"] if "dmm_browser_type" in data else 0
                 except BaseException as e:
-                    print(f"配置文件读取失败: {e}")
+                    # print(f"配置文件读取失败: {e}")
+                    pass
 
 
     @staticmethod
