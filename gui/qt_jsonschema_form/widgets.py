@@ -134,6 +134,8 @@ class SpinDoubleSchemaWidget(SchemaWidgetMixin, QtWidgets.QDoubleSpinBox):
         self.setValue(state)
 
     def configure(self):
+        self.setDecimals(5)
+        self.setSingleStep(0.01)
         self.valueChanged.connect(self.on_changed.emit)
         if "maximum" in self.schema:
             if "exclusiveMaximum" in self.schema:
