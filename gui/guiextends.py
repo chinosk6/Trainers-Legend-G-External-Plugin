@@ -256,7 +256,7 @@ del reboot.bat & exit"""
         self.window_config.show()
 
     def show_message_box(self, title, text, btn=QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No):
-        return QtWidgets.QMessageBox.information(self, title, text, btn)
+        return QtWidgets.QMessageBox.information(self.window, title, text, btn)
 
     def load_schma_form(self):
         self.config_form = self.get_schema_form()
