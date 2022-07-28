@@ -60,4 +60,4 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "config - Trainers-Legend-G"))
         self.groupBox.setTitle(_translate("MainWindow", "Config settings"))
         self.pushButton_save.setText(_translate("MainWindow", "Save"))
-        self.label.setText(_translate("MainWindow", "* Effective after restarting the game."))
+        self.label.setText(_translate("MainWindow", "* Some configurations need to restart the game to take effect."))

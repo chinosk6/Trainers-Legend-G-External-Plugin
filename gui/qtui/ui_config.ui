@@ -66,7 +66,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>* Effective after restarting the game.</string>
+          <string>* Some configurations need to restart the game to take effect.</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>

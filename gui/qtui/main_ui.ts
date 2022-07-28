@@ -4,64 +4,69 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="main_ui.py" line="70"/>
+        <location filename="main_ui.py" line="99"/>
         <source>Trainers-Legend-G External Plugin</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_ui.py" line="71"/>
+        <location filename="main_ui.py" line="100"/>
         <source>Config Settings</source>
         <translation type="unfinished">配置设置</translation>
     </message>
     <message>
-        <location filename="main_ui.py" line="72"/>
-        <source>Game Fast Reboot</source>
-        <translation type="unfinished">快速重启</translation>
-    </message>
-    <message>
-        <location filename="main_ui.py" line="73"/>
+        <location filename="main_ui.py" line="101"/>
         <source>Discord RPC</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_ui.py" line="75"/>
-        <source>About</source>
-        <translation type="unfinished">关于</translation>
+        <location filename="main_ui.py" line="102"/>
+        <source>Game Fast Login</source>
+        <translation type="unfinished">快速登录(不启动DMM)</translation>
     </message>
     <message>
-        <location filename="main_ui.py" line="76"/>
-        <source>Github - Trainers-Legend-G</source>
-        <translation type="unfinished"></translation>
+        <location filename="main_ui.py" line="103"/>
+        <source>Game Fast Reboot</source>
+        <translation type="unfinished">快速重启</translation>
     </message>
     <message>
-        <location filename="main_ui.py" line="77"/>
-        <source>Github - This Plugin</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_ui.py" line="78"/>
+        <location filename="main_ui.py" line="105"/>
         <source>Plugin Version</source>
         <translation type="unfinished">插件版本</translation>
     </message>
     <message>
-        <location filename="main_ui.py" line="79"/>
-        <source>Update</source>
-        <translation type="unfinished">更新</translation>
-    </message>
-    <message>
-        <location filename="main_ui.py" line="80"/>
+        <location filename="main_ui.py" line="106"/>
         <source>version_now</source>
         <translation type="unfinished">当前版本</translation>
     </message>
     <message>
-        <location filename="main_ui.py" line="81"/>
+        <location filename="main_ui.py" line="107"/>
         <source>version_latest</source>
         <translation type="unfinished">最新版本</translation>
     </message>
     <message>
-        <location filename="main_ui.py" line="74"/>
-        <source>Game Fast Login</source>
-        <translation type="unfinished">快速登录 (不启动DMM)</translation>
+        <location filename="main_ui.py" line="108"/>
+        <source>Update</source>
+        <translation type="unfinished">更新</translation>
+    </message>
+    <message>
+        <location filename="main_ui.py" line="109"/>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_ui.py" line="110"/>
+        <source>Github - Trainers-Legend-G</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_ui.py" line="111"/>
+        <source>Github - This Plugin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_ui.py" line="104"/>
+        <source>Reload Config and Textdb</source>
+        <translation type="unfinished">重载配置和文本</translation>
     </message>
 </context>
 </TS>

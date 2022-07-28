@@ -16,7 +16,6 @@ from . import discord_rpc
 from . import unzip_file
 from . import qtray
 
-
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
 local_language = ctypes.windll.kernel32.GetSystemDefaultUILanguage()
 chinese_lang_id = [0x0c04, 0x1404, 0x0804, 0x1004, 0x0404]
@@ -95,6 +94,7 @@ class UIChange(QWidget):
 
     def __init__(self):
         self.app = QApplication(sys.argv)
+        self.tlg_http_port = None
 
         if local_language in chinese_lang_id:
             self.trans = QtCore.QTranslator()
@@ -151,13 +151,26 @@ class UIChange(QWidget):
     def load_args(self):
         args = sys.argv
         if len(args) > 1:
-            if "umamusume.exe" in args[1]:
-                base_path = os.path.split(args[1])[0]
-                if base_path != "":
-                    self.uma_path = base_path
-                self.uma_load_cmd = "\"" + "\" \"".join(args[1:]) + "\""
-                self.ui.pushButton_fast_reboot.setEnabled(True)
-                self.ui.pushButton_fast_reboot.setToolTip(self.uma_load_cmd)
+            for i in args:
+                if i.startswith("--tlgport="):
+                    self.tlg_http_port = i[len("--tlgport="):]
+                    _cp = i
+                    break
+
+            if self.tlg_http_port is not None:
+                if f"--tlgport={self.tlg_http_port}" in args:
+                    args.remove(f"--tlgport={self.tlg_http_port}")
+
+            self.ui.pushButton_reload_config.setEnabled(self.tlg_http_port is not None)
+
+            if len(args) > 1:
+                if "umamusume.exe" in args[1]:
+                    base_path = os.path.split(args[1])[0]
+                    if base_path != "":
+                        self.uma_path = base_path
+                    self.uma_load_cmd = "\"" + "\" \"".join(args[1:]) + "\""
+                    self.ui.pushButton_fast_reboot.setEnabled(True)
+                    self.ui.pushButton_fast_reboot.setToolTip(self.uma_load_cmd)
 
         if os.path.isfile(f"{self.uma_path}/umamusume.exe"):
             self.ui.pushButton_fast_login.setEnabled(True)
@@ -192,6 +205,7 @@ class UIChange(QWidget):
         self.show_message_signal.connect(lambda x, y: self.show_message_box(x, y))
         self.update_finish_signal.connect(self.update_finish)
         self.update_btn_click_signal.connect(lambda *x: self.ui.pushButton_plugin_update.click())
+        self.ui.pushButton_reload_config.clicked.connect(self.reload_config)
 
     def close_other_window(self):
         mwindows = [self.window_rpc, self.window_config]
@@ -233,16 +247,16 @@ del reboot.bat & exit"""
             if os.path.isfile(f"{self.uma_path}/config.json"):
                 with open(f"{self.uma_path}/config.json", "w", encoding="utf8") as f:
                     json.dump(self.cache_config_changes, f, ensure_ascii=False, indent=4)
+        self.window_config.close()
+        self.reload_config()
 
     def show_config_settings_window(self, *args):
         self.cache_config_changes = None
         self.load_schma_form()
         self.window_config.show()
 
-    def show_message_box(self, title, text):
-        return QtWidgets.QMessageBox.information(self, title,
-                                                 text,
-                                                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+    def show_message_box(self, title, text, btn=QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No):
+        return QtWidgets.QMessageBox.information(self, title, text, btn)
 
     def load_schma_form(self):
         self.config_form = self.get_schema_form()
@@ -484,6 +498,26 @@ del reboot.bat & exit"""
         if resu == QtWidgets.QMessageBox.Yes:
             if self.ui.pushButton_fast_reboot.isEnabled():
                 self.ui.pushButton_fast_reboot.click()
+
+    def reload_config(self, *args):
+        if self.tlg_http_port is not None:
+            rp = self.show_message_box("Reload Config", "Reload Config Right Now?")
+            if rp == QtWidgets.QMessageBox.Yes:
+                def _():
+                    try:
+                        resp = requests.post(f"http://127.0.0.1:{self.tlg_http_port}/sets",
+                                             headers={'Content-Type': 'application/json'},
+                                             data=json.dumps({"type": "reload_all"}))
+                        if resp.status_code == 200:
+                            self.show_message_signal.emit("Reload Success", resp.text)
+                        else:
+                            self.show_message_signal.emit("Reload Failed", resp.text)
+                    except BaseException as e:
+                        self.show_message_signal.emit("Reload Failed", repr(e))
+                threading.Thread(target=_).start()
+
+        else:
+            self.show_message_box("Reload Config", "Please Restart the Game.", QtWidgets.QMessageBox.Yes)
 
     def ui_run_main(self):
         self.window.show()
