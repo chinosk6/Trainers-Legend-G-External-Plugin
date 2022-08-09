@@ -91,6 +91,7 @@ class UIChange(QWidget):
     update_dmm_login_btn_signal = QtCore.pyqtSignal(str)
     dmm_login_success_signal = QtCore.pyqtSignal(str)
     dmm_button_login_cache_signal = QtCore.pyqtSignal(str)
+    update_btn_enable = QtCore.pyqtSignal(bool)
 
     def __init__(self):
         self.app = QApplication(sys.argv)
@@ -206,6 +207,7 @@ class UIChange(QWidget):
         self.update_finish_signal.connect(self.update_finish)
         self.update_btn_click_signal.connect(lambda *x: self.ui.pushButton_plugin_update.click())
         self.ui.pushButton_reload_config.clicked.connect(self.reload_config)
+        self.update_btn_enable.connect(lambda x: self.ui.pushButton_plugin_update.setEnabled(x))
 
     def close_other_window(self):
         mwindows = [self.window_rpc, self.window_config]
@@ -439,43 +441,48 @@ del reboot.bat & exit"""
 
     def update_button_onclick(self, *args):
         def download_file():
-            if os.path.isfile(f"{self.uma_path}/config.json"):
-                with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as fc:
-                    config_old = json.load(fc)
-            else:
-                config_old = {}
+            try:
+                if os.path.isfile(f"{self.uma_path}/config.json"):
+                    with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as fc:
+                        config_old = json.load(fc)
+                else:
+                    config_old = {}
 
-            for i in self._autoupdate_response_cache["assets"]:
-                down_url = i["browser_download_url"]
-                file_name = i["name"]
-                if file_name.endswith(".zip"):
-                    url = down_url
-                    self.update_btn_signal.emit("false")
-                    resp = requests.get(url, stream=True)
-                    total = int(resp.headers.get('content-length', 0))
-                    save_name = f"{self.uma_path}/auto_p_update.zip"
-                    with open(save_name, "wb") as f:
-                        down_size = 0
-                        for data in resp.iter_content(chunk_size=1024):
-                            size = f.write(data)
-                            down_size += size
-                            if total == 0:
-                                self.update_btn_signal.emit("downloading")
-                            else:
-                                self.update_btn_signal.emit(f"{int(down_size / total * 100)}%")
-                    self.update_btn_signal.emit("unzipping")
-                    unzip_file.unzip_file(save_name, f"{self.uma_path}/")
-                    os.remove(save_name)
+                for i in self._autoupdate_response_cache["assets"]:
+                    down_url = i["browser_download_url"]
+                    file_name = i["name"]
+                    if file_name.endswith(".zip"):
+                        url = down_url
+                        self.update_btn_signal.emit("false")
+                        resp = requests.get(url, stream=True)
+                        total = int(resp.headers.get('content-length', 0))
+                        save_name = f"{self.uma_path}/auto_p_update.zip"
+                        with open(save_name, "wb") as f:
+                            down_size = 0
+                            for data in resp.iter_content(chunk_size=1024):
+                                size = f.write(data)
+                                down_size += size
+                                if total == 0:
+                                    self.update_btn_signal.emit("downloading")
+                                else:
+                                    self.update_btn_signal.emit(f"{int(down_size / total * 100)}%")
+                        self.update_btn_signal.emit("unzipping")
+                        unzip_file.unzip_file(save_name, f"{self.uma_path}/")
+                        os.remove(save_name)
 
-            if os.path.isfile(f"{self.uma_path}/config.json"):
-                with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as fc:
-                    config_new = json.load(fc)
-                config_update = unzip_file.config_update(config_old, config_new)
-                with open(f"{self.uma_path}/config.json", "w", encoding="utf8") as fc:
-                    json.dump(config_update, fc, indent=4, ensure_ascii=False)
+                if os.path.isfile(f"{self.uma_path}/config.json"):
+                    with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as fc:
+                        config_new = json.load(fc)
+                    config_update = unzip_file.config_update(config_old, config_new)
+                    with open(f"{self.uma_path}/config.json", "w", encoding="utf8") as fc:
+                        json.dump(config_update, fc, indent=4, ensure_ascii=False)
 
-            self.update_btn_signal.emit("Done.")
-            self.update_finish_signal.emit()
+                self.update_btn_signal.emit("Done.")
+                self.update_finish_signal.emit()
+            except BaseException as e:
+                self.update_btn_signal.emit("Failed.")
+                self.update_btn_enable.emit(True)
+                self.show_message_signal.emit("Update Failed!", repr(e))
 
         if self._autoupdate_response_cache is None:
             return
