@@ -150,7 +150,7 @@ class GuiMain(guiextends.UIChange):
     def dmm_login_success(self, gameargs: str):
         sys.argv = [sys.argv[0], f"{self.uma_path}/umamusume.exe"] + [i for i in gameargs.split(" ")]
         self.load_args()
-        is_reboot = self.show_message_box("Login Success", "是否立刻启动游戏?")
+        is_reboot = self.show_message_box("Login Success", "Launch the game immediately?")
         if is_reboot == QtWidgets.QMessageBox.Yes:
             self.game_fast_reboot()
 

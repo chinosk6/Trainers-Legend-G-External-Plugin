@@ -11,21 +11,31 @@ import json
 import os
 import ctypes
 import webbrowser
+import pyperclip
 from . import uma_icon_data
 from . import discord_rpc
 from . import unzip_file
 from . import qtray
 
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
-local_language = ctypes.windll.kernel32.GetSystemDefaultUILanguage()
-chinese_lang_id = [0x0c04, 0x1404, 0x0804, 0x1004, 0x0404]
-# chinese_lang_id = []
+local_language = ctypes.windll.kernel32.GetUserDefaultUILanguage()
+sChinese_lang_id = [0x0004, 0x0804, 0x1004]  # zh-Hans, zh-CN, zh-SG
+tChinese_lang_id = [0x0404, 0x0c04, 0x1404, 0x048E]  # zh-TW, zh-HK, zh-MO, zh-yue-HK
+
 rpc = discord_rpc.DiscordRpc()
 rpc_data = discord_rpc.RpcSaveData()
 start_time = int(time.time())
-now_ver_label_fmt = "当前版本: {0}" if local_language in chinese_lang_id else "Now Version: {0}"
-latest_ver_label_fmt = "最新版本: {0}" if local_language in chinese_lang_id else "Latest Version: {0}"
 AUTOUPDATE_SUPPORT_SOURCE = ["github"]
+
+if local_language in sChinese_lang_id:
+    now_ver_label_fmt = "当前版本: {0}"
+    latest_ver_label_fmt = "最新版本: {0}"
+elif local_language in tChinese_lang_id:
+    now_ver_label_fmt = "當前版本: {0}"
+    latest_ver_label_fmt = "最新版本: {0}"
+else:
+    now_ver_label_fmt = "Now Version: {0}"
+    latest_ver_label_fmt = "Latest Version: {0}"
 
 last_sub_close_time = 0
 
@@ -60,7 +70,7 @@ class Qm2(QMainWindow):
         #     a0.ignore()
         #     return
 
-        req = QtWidgets.QMessageBox.information(self, "确定要退出吗?", "退出后将断开Discord RPC等服务",
+        req = QtWidgets.QMessageBox.information(self, "Exit", "Are you sure?",
                                                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         if req != QtWidgets.QMessageBox.Yes:
             a0.ignore()
@@ -97,15 +107,22 @@ class UIChange(QWidget):
         self.app = QApplication(sys.argv)
         self.tlg_http_port = None
 
-        if local_language in chinese_lang_id:
+        if local_language in sChinese_lang_id + tChinese_lang_id:
             self.trans = QtCore.QTranslator()
-            self.trans.load(":/trans/main_ui.qm")
             self.trans2 = QtCore.QTranslator()
-            self.trans2.load(":/trans/ui_rpc.qm")
             self.trans3 = QtCore.QTranslator()
-            self.trans3.load(":/trans/ui_config.qm")
             self.trans4 = QtCore.QTranslator()
-            self.trans4.load(":/trans/ui_dmmlogin.qm")
+
+            if local_language in sChinese_lang_id:
+                self.trans.load(":/trans/main_ui.qm")
+                self.trans2.load(":/trans/ui_rpc.qm")
+                self.trans3.load(":/trans/ui_config.qm")
+                self.trans4.load(":/trans/ui_dmmlogin.qm")
+            if local_language in tChinese_lang_id:
+                self.trans.load(":/trans/ts_zh_tw/main_ui_zh_tw.qm")
+                self.trans2.load(":/trans/ts_zh_tw/ui_rpc_zh_tw.qm")
+                self.trans3.load(":/trans/ts_zh_tw/ui_config_zh_tw.qm")
+                self.trans4.load(":/trans/ts_zh_tw/ui_dmmlogin_zh_tw.qm")
 
             self.app.installTranslator(self.trans)
             self.app.installTranslator(self.trans2)
@@ -148,6 +165,8 @@ class UIChange(QWidget):
         self._autoupdate_source = None
         self._autoupdate_url = None
         self._autoupdate_response_cache = None
+        self._fastreboot_btn_clicked_time = 0
+        self._fastreboot_btn_is_long = False
 
     def load_args(self):
         args = sys.argv
@@ -188,6 +207,8 @@ class UIChange(QWidget):
             "https://github.com/chinosk114514/Trainers-Legend-G-External-Plugin"
         ))
         self.ui.pushButton_fast_reboot.clicked.connect(self.game_fast_reboot)
+        self.ui.pushButton_fast_reboot.pressed.connect(self.fast_reboot_btn_press)
+        self.ui.pushButton_fast_reboot.released.connect(self.fast_reboot_btn_released)
         self.ui.pushButton_discord_rpc.clicked.connect(self.show_rpc_window)
         self.ui_rpc.comboBox_char_icon.activated.connect(self.rpc_char_icon_onclick)
         self.ui_rpc.pushButton_connect.clicked.connect(self.rpc_button_connect_onclick)
@@ -225,6 +246,10 @@ class UIChange(QWidget):
             self.ui_rpc.pushButton_connect.click()
 
     def game_fast_reboot(self, *args):
+        if self._fastreboot_btn_is_long:
+            self._fastreboot_btn_is_long = False
+            return
+
         if self.uma_load_cmd is not None:
             with open("reboot.bat", "w", encoding=None) as f:
                 f.write(f"""@echo off
@@ -243,6 +268,20 @@ del reboot.bat & exit"""
             self.main_on_quit()
             QtWidgets.qApp.quit()
             os._exit(0)
+
+    def fast_reboot_btn_press(self, *args):
+        self._fastreboot_btn_clicked_time = time.time()
+
+    def fast_reboot_btn_released(self, *args):
+        time_passed = time.time() - self._fastreboot_btn_clicked_time
+        if time_passed > 1.2:
+            try:
+                pyperclip.copy(self.uma_load_cmd)
+                self.show_message_box("Copy Load Parameter", f"Copied: {self.uma_load_cmd}")
+            except BaseException as e:
+                self.show_message_box("Copy Load Parameter Failed", f"Copy Content: {self.uma_load_cmd}\n"
+                                                                    f"Error: {e}")
+            self._fastreboot_btn_is_long = True
 
     def save_config_changes(self, *args):
         if self.cache_config_changes is not None:
@@ -274,12 +313,16 @@ del reboot.bat & exit"""
 
     def get_schema_form(self):
         base_path = self.uma_path
-        if local_language not in chinese_lang_id:
-            schema_file = f"{base_path}/localized_data/config_schema/config_en.schema.json"
-            if not os.path.isfile(schema_file):
-                schema_file = f"{base_path}/localized_data/config_schema/config.schema.json"
-        else:
+
+        if local_language in sChinese_lang_id:
             schema_file = f"{base_path}/localized_data/config_schema/config.schema.json"
+        elif local_language in tChinese_lang_id:
+            schema_file = f"{base_path}/localized_data/config_schema/config.schema_zh_tw.json"
+        else:
+            schema_file = f"{base_path}/localized_data/config_schema/config_en.schema.json"
+        if not os.path.isfile(schema_file):
+            schema_file = f"{base_path}/localized_data/config_schema/config.schema.json"
+
         if os.path.isfile(schema_file):
             builder = WidgetBuilder()
             with open(schema_file, "r", encoding="utf8") as f:
@@ -440,6 +483,8 @@ del reboot.bat & exit"""
             self.ui.pushButton_plugin_update.setText(s)
 
     def update_button_onclick(self, *args):
+        save_name = f"{self.uma_path}/auto_p_update.zip"
+
         def download_file():
             try:
                 if os.path.isfile(f"{self.uma_path}/config.json"):
@@ -456,7 +501,6 @@ del reboot.bat & exit"""
                         self.update_btn_signal.emit("false")
                         resp = requests.get(url, stream=True)
                         total = int(resp.headers.get('content-length', 0))
-                        save_name = f"{self.uma_path}/auto_p_update.zip"
                         with open(save_name, "wb") as f:
                             down_size = 0
                             for data in resp.iter_content(chunk_size=1024):
@@ -479,15 +523,16 @@ del reboot.bat & exit"""
 
                 self.update_btn_signal.emit("Done.")
                 self.update_finish_signal.emit()
-            except BaseException as e:
+            except BaseException as ex:
                 self.update_btn_signal.emit("Failed.")
                 self.update_btn_enable.emit(True)
-                self.show_message_signal.emit("Update Failed!", repr(e))
+                self.show_message_signal.emit("Update Failed!", f"{repr(ex)}\n\n"
+                                                                f"缓存文件已保存: auto_p_update.zip")
 
         if self._autoupdate_response_cache is None:
             return
-        res = self.show_message_box("插件更新", f"更新说明:\n\n{self._autoupdate_response_cache['body']}"
-                                            f"\n\n点击确认将关闭游戏进行更新, 您确认要更新吗?")
+        res = self.show_message_box("Plugin Update", f"{self._autoupdate_response_cache['body']}"
+                                                     f"\n\n点击确认将关闭游戏进行更新, 您确认要更新吗?")
         if res == QtWidgets.QMessageBox.Yes:
             self.ui.pushButton_plugin_update.setEnabled(False)
             open(f"{self.uma_path}/dontcloseext.lock", "wb").close()
@@ -498,6 +543,36 @@ del reboot.bat & exit"""
             del gkill.bat & exit"""
                         )
             os.system("gkill.bat")
+
+            if os.path.isfile(save_name):
+                useCache = self.show_message_box("Plugin Update",
+                                                 "检测到残留的更新文件, 可能是您上次更新出现错误, 是否尝试重新解压?\n"
+                                                 "Residual update file detected. It may be an error occurred"
+                                                 " in your last update. Would you like to try unzip again?")
+                if useCache == QtWidgets.QMessageBox.Yes:
+                    try:
+                        if os.path.isfile(f"{self.uma_path}/config.json"):
+                            with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as fc:
+                                config_old = json.load(fc)
+                        else:
+                            config_old = {}
+
+                        self.update_btn_signal.emit("unzipping")
+                        unzip_file.unzip_file(save_name, f"{self.uma_path}/")
+                        self.update_btn_signal.emit("Done.")
+                        self.update_finish_signal.emit()
+                    except BaseException as e:
+                        self.update_btn_signal.emit("Failed.")
+                        self.show_message_box("Exception Occurred", repr(e))
+                    finally:
+                        os.remove(save_name)
+                        if os.path.isfile(f"{self.uma_path}/config.json"):
+                            with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as fc:
+                                config_new = json.load(fc)
+                            config_update = unzip_file.config_update(config_old, config_new)
+                            with open(f"{self.uma_path}/config.json", "w", encoding="utf8") as fc:
+                                json.dump(config_update, fc, indent=4, ensure_ascii=False)
+                    return
             threading.Thread(target=download_file).start()
 
     def update_finish(self, *args):
@@ -521,6 +596,7 @@ del reboot.bat & exit"""
                             self.show_message_signal.emit("Reload Failed", resp.text)
                     except BaseException as e:
                         self.show_message_signal.emit("Reload Failed", repr(e))
+
                 threading.Thread(target=_).start()
 
         else:
