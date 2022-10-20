@@ -317,7 +317,7 @@ del reboot.bat & exit"""
         if local_language in sChinese_lang_id:
             schema_file = f"{base_path}/localized_data/config_schema/config.schema.json"
         elif local_language in tChinese_lang_id:
-            schema_file = f"{base_path}/localized_data/config_schema/config.schema_zh_tw.json"
+            schema_file = f"{base_path}/localized_data/config_schema/config_zh_tw.schema.json"
         else:
             schema_file = f"{base_path}/localized_data/config_schema/config_en.schema.json"
         if not os.path.isfile(schema_file):
