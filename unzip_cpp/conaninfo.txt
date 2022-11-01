@@ -1,0 +1,42 @@
+[settings]
+    arch=x86_64
+    build_type=Release
+    compiler=Visual Studio
+    compiler.runtime=MD
+    compiler.version=16
+    os=Windows
+
+[requires]
+    minizip/1.Y.Z
+
+[options]
+
+
+[full_settings]
+    arch=x86_64
+    arch_build=x86_64
+    build_type=Release
+    compiler=Visual Studio
+    compiler.runtime=MD
+    compiler.version=16
+    os=Windows
+    os_build=Windows
+
+[full_requires]
+    bzip2/1.0.8:d16a91eadaaf5829b928b12d2f836ff7680d3df5
+    minizip/1.2.11:153ff990bb7a331b443365f9878a3991adbdea9d
+    zlib/1.2.12:3fb49604f9c2f729b85ba3115852006824e72cab
+
+[full_options]
+    bzip2:build_executable=True
+    bzip2:shared=False
+    minizip:bzip2=True
+    minizip:shared=False
+    minizip:tools=False
+    zlib:shared=False
+
+[recipe_hash]
+
+
+[env]
+

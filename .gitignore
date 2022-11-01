@@ -140,3 +140,6 @@ dmypy.json
 /legend_g_plugin.exe
 /msedgedriver.exe
 /chromedriver.exe
+/unzip_cpp/.vs
+/unzip_cpp/x64
+/legend_g_plugin_windows7.exe

@@ -1,0 +1,34 @@
+{
+ "options": [
+  [
+   "bzip2:build_executable",
+   "True"
+  ],
+  [
+   "bzip2:shared",
+   "False"
+  ],
+  [
+   "minizip:bzip2",
+   "True"
+  ],
+  [
+   "minizip:shared",
+   "False"
+  ],
+  [
+   "minizip:tools",
+   "False"
+  ],
+  [
+   "zlib:shared",
+   "False"
+  ]
+ ],
+ "root": {
+  "name": null,
+  "version": null,
+  "user": null,
+  "channel": null
+ }
+}

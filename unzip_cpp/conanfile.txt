@@ -1,0 +1,5 @@
+[requires]
+minizip/1.2.11
+
+[generators]
+premake

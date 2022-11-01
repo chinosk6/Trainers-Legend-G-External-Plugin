@@ -34,6 +34,31 @@ python main.py
 
 
 
+## 自行编译pyd
+
+- 由于 Python 自带的 `zipfile` 库有文件名编码问题, 故更改为  `c++ minizip` 库, 使用 [pybind11](https://github.com/pybind/pybind11) 编译, 编译文件放置于 `./gui/umauitools.pyd`。此二进制文件基于 `Python 3.8`, 若您的Python版本不一致, 请自行编译, 源码位于: `./unzip_cpp`
+
+### 编译配置
+
+**以下路径配置仅为例子, 请自行修改为自己的`python` 和 `pybind11` 的安装目录**
+
+- 配置属性 - VC++目录 - 包含目录:
+
+```
+C:\Users\Administrator\AppData\Local\Programs\Python\Python38\include
+C:\Users\Administrator\Downloads\pybind11\include
+```
+
+- 配置属性 - VC++目录 - 库目录:
+
+```
+C:\Users\Administrator\AppData\Local\Programs\Python\Python38\libs
+```
+
+
+
+
+
 # 打包
 
 - 建议使用[Nuitka](https://github.com/Nuitka/Nuitka)进行打包。Nuitka可以将Python代码转换为C++后编译, 极大提高了运行速度

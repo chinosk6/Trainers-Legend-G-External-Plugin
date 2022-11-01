@@ -1,5 +1,11 @@
-import zipfile
 import os
+
+try:
+    from . import umauitools
+    unz_stat = 0
+except:
+    import zipfile
+    unz_stat = 1
 
 
 def config_update(config_before: dict, new_config: dict):
@@ -29,7 +35,7 @@ def config_update(config_before: dict, new_config: dict):
 
 
 
-def unzip_file(zipfilename, unziptodir):
+def unzip_file_built_in(zipfilename, unziptodir):
     if not os.path.exists(unziptodir.encode('utf-8').decode('utf-8')):
         os.mkdir(unziptodir.encode('utf-8').decode('utf-8'), 0o777)
     zfobj = zipfile.ZipFile(zipfilename)
@@ -48,6 +54,10 @@ def unzip_file(zipfilename, unziptodir):
             outfile.write(zfobj.read(name))
             outfile.close()
 
+def unzip_file_cpp(zipfilename, unziptodir):
+    unzip_stat = umauitools.Unzip.decompress_file(zipfilename, unziptodir)
+    if unzip_stat != "ok":
+        raise RuntimeError(f"Unzip failed: {unzip_stat}")
 
-if __name__ == '__main__':
-    unzip_file("rfe.zip", "./")
+
+unzip_file = unzip_file_built_in if unz_stat == 1 else unzip_file_cpp

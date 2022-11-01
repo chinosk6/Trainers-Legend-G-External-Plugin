@@ -511,6 +511,7 @@ del reboot.bat & exit"""
                                 else:
                                     self.update_btn_signal.emit(f"{int(down_size / total * 100)}%")
                         self.update_btn_signal.emit("unzipping")
+                        time.sleep(0.5)
                         unzip_file.unzip_file(save_name, f"{self.uma_path}/")
                         os.remove(save_name)
 
@@ -528,6 +529,31 @@ del reboot.bat & exit"""
                 self.update_btn_enable.emit(True)
                 self.show_message_signal.emit("Update Failed!", f"{repr(ex)}\n\n"
                                                                 f"缓存文件已保存: auto_p_update.zip")
+
+        def unzip_from_cache():
+            config_old = {}
+            try:
+                if os.path.isfile(f"{self.uma_path}/config.json"):
+                    with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as fc:
+                        config_old = json.load(fc)
+
+                self.update_btn_signal.emit("unzipping")
+                time.sleep(0.5)
+                unzip_file.unzip_file(save_name, f"{self.uma_path}/")
+                self.update_btn_signal.emit("Done.")
+                self.update_finish_signal.emit()
+            except BaseException as e:
+                self.update_btn_signal.emit("Failed.")
+                self.show_message_signal.emit("Exception Occurred", repr(e))
+            finally:
+                os.remove(save_name)
+                if os.path.isfile(f"{self.uma_path}/config.json"):
+                    with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as fc:
+                        config_new = json.load(fc)
+                    config_update = unzip_file.config_update(config_old, config_new)
+                    with open(f"{self.uma_path}/config.json", "w", encoding="utf8") as fc:
+                        json.dump(config_update, fc, indent=4, ensure_ascii=False)
+            return
 
         if self._autoupdate_response_cache is None:
             return
@@ -550,28 +576,7 @@ del reboot.bat & exit"""
                                                  "Residual update file detected. It may be an error occurred"
                                                  " in your last update. Would you like to try unzip again?")
                 if useCache == QtWidgets.QMessageBox.Yes:
-                    try:
-                        if os.path.isfile(f"{self.uma_path}/config.json"):
-                            with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as fc:
-                                config_old = json.load(fc)
-                        else:
-                            config_old = {}
-
-                        self.update_btn_signal.emit("unzipping")
-                        unzip_file.unzip_file(save_name, f"{self.uma_path}/")
-                        self.update_btn_signal.emit("Done.")
-                        self.update_finish_signal.emit()
-                    except BaseException as e:
-                        self.update_btn_signal.emit("Failed.")
-                        self.show_message_box("Exception Occurred", repr(e))
-                    finally:
-                        os.remove(save_name)
-                        if os.path.isfile(f"{self.uma_path}/config.json"):
-                            with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as fc:
-                                config_new = json.load(fc)
-                            config_update = unzip_file.config_update(config_old, config_new)
-                            with open(f"{self.uma_path}/config.json", "w", encoding="utf8") as fc:
-                                json.dump(config_update, fc, indent=4, ensure_ascii=False)
+                    threading.Thread(target=unzip_from_cache).start()
                     return
             threading.Thread(target=download_file).start()
 
