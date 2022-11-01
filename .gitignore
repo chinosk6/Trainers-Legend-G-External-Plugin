@@ -143,3 +143,4 @@ dmypy.json
 /unzip_cpp/.vs
 /unzip_cpp/x64
 /legend_g_plugin_windows7.exe
+/main.onefile-build

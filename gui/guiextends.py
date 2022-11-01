@@ -557,8 +557,7 @@ del reboot.bat & exit"""
 
         if self._autoupdate_response_cache is None:
             return
-        res = self.show_message_box("Plugin Update", f"{self._autoupdate_response_cache['body']}"
-                                                     f"\n\n点击确认将关闭游戏进行更新, 您确认要更新吗?")
+        res = self.show_message_box("Plugin Update", f"{self._autoupdate_response_cache['body']}")
         if res == QtWidgets.QMessageBox.Yes:
             self.ui.pushButton_plugin_update.setEnabled(False)
             open(f"{self.uma_path}/dontcloseext.lock", "wb").close()
