@@ -36,7 +36,7 @@ python main.py
 
 ## 自行编译pyd
 
-- 由于 Python 自带的 `zipfile` 库有文件名编码问题, 故更改为  `c++ minizip` 库, 使用 [pybind11](https://github.com/pybind/pybind11) 编译, 编译文件放置于 `./gui/umauitools.pyd`。此二进制文件基于 `Python 3.8`, 若您的Python版本不一致, 请自行编译, 源码位于: `./unzip_cpp`
+- 由于 Python 自带的 `zipfile` 库有文件名编码问题, 故更改为 [bit7z](https://github.com/rikyoz/bit7z) 库 (基于 [7-zip](https://www.7-zip.org/) ), 使用 [pybind11](https://github.com/pybind/pybind11) 编译, 编译文件放置于 `./gui/umauitools.pyd`。此二进制文件基于 `Python 3.8`, 若您使用其它版本的 Python , 请自行编译, 源码位于: `./unzip_cpp`
 
 ### 编译配置
 
@@ -55,7 +55,12 @@ C:\Users\Administrator\Downloads\pybind11\include
 C:\Users\Administrator\AppData\Local\Programs\Python\Python38\libs
 ```
 
+- 配置属性 - 链接器 - 附加依赖项
 
+```
+python3.lib
+python38.lib
+```
 
 
 

@@ -21,6 +21,7 @@ def timestamp_to_text(timestamp: int, _format="%Y-%m-%d %H:%M:%S"):
 class GuiMain(guiextends.UIChange):
     def __init__(self):
         super(GuiMain, self).__init__()
+        self.check_res_file()
 
         self.window_dmm = guiextends.QMn(self.window)
         self.window_dmm.setWindowIcon(QtGui.QIcon(":/img/jia.ico"))
@@ -34,6 +35,11 @@ class GuiMain(guiextends.UIChange):
 
         self.regist_callback()
         self.init_gui()
+
+    @staticmethod
+    def check_res_file():
+        if not os.path.isfile("7z.dll"):
+            QtCore.QFile.copy(":dll/7z.dll", "7z.dll")
 
     def regist_callback(self):
         super(GuiMain, self).regist_callback()

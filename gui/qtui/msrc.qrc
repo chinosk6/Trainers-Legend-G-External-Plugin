@@ -6,6 +6,9 @@
     <file>jio.ico</file>
     <file>jishao.ico</file>
   </qresource>
+  <qresource prefix="dll">
+    <file>7z.dll</file>
+  </qresource>
   <qresource prefix="trans">
     <file>ts_zh_tw/main_ui_zh_tw.qm</file>
     <file>ts_zh_tw/ui_config_zh_tw.qm</file>
