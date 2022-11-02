@@ -544,6 +544,7 @@ del reboot.bat & exit"""
                 self.update_finish_signal.emit()
             except BaseException as e:
                 self.update_btn_signal.emit("Failed.")
+                self.update_btn_enable.emit(True)
                 self.show_message_signal.emit("Exception Occurred", repr(e))
             finally:
                 os.remove(save_name)
