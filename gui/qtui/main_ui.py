@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(369, 550)
+        MainWindow.resize(369, 573)
         font = QtGui.QFont()
         font.setFamily("Microsoft YaHei")
         MainWindow.setFont(font)
@@ -51,6 +51,11 @@ class Ui_MainWindow(object):
         self.pushButton_reload_config.setMaximumSize(QtCore.QSize(10000, 10000))
         self.pushButton_reload_config.setObjectName("pushButton_reload_config")
         self.verticalLayout_2.addWidget(self.pushButton_reload_config)
+        self.pushButton_more = QtWidgets.QPushButton(self.groupBox)
+        self.pushButton_more.setEnabled(True)
+        self.pushButton_more.setMaximumSize(QtCore.QSize(10000, 10000))
+        self.pushButton_more.setObjectName("pushButton_more")
+        self.verticalLayout_2.addWidget(self.pushButton_more)
         self.verticalLayout.addWidget(self.groupBox)
         self.groupBox_3 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_3.setObjectName("groupBox_3")
@@ -102,6 +107,7 @@ class Ui_MainWindow(object):
         self.pushButton_fast_login.setText(_translate("MainWindow", "Game Fast Login"))
         self.pushButton_fast_reboot.setText(_translate("MainWindow", "Game Fast Reboot"))
         self.pushButton_reload_config.setText(_translate("MainWindow", "Reload Config and Textdb"))
+        self.pushButton_more.setText(_translate("MainWindow", "More"))
         self.groupBox_3.setTitle(_translate("MainWindow", "Plugin Version"))
         self.label_version_now.setText(_translate("MainWindow", "version_now"))
         self.label_version_latest.setText(_translate("MainWindow", "version_latest"))

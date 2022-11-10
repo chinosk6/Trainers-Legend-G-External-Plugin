@@ -1,7 +1,7 @@
 import threading
 import time
 import requests
-from .qtui.ui_import import MainUI, ConfigUI, RPCUI
+from .qtui.ui_import import MainUI, ConfigUI, RPCUI, MoreSettingsUI
 from .qtui import msrc_rc  # 不能删
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QDialog, QApplication, QMainWindow, QWidget
@@ -107,6 +107,7 @@ class UIChange(QWidget):
         self.app = QApplication(sys.argv)
         self.tlg_http_port = None
 
+        self.more_settings_i18n_file = None
         if local_language in sChinese_lang_id + tChinese_lang_id:
             self.trans = QtCore.QTranslator()
             self.trans2 = QtCore.QTranslator()
@@ -118,16 +119,26 @@ class UIChange(QWidget):
                 self.trans2.load(":/trans/ui_rpc.qm")
                 self.trans3.load(":/trans/ui_config.qm")
                 self.trans4.load(":/trans/ui_dmmlogin.qm")
+                self.more_settings_i18n_file = "./localized_data/config_schema/text_data_info_i18n_zh.json"
             if local_language in tChinese_lang_id:
                 self.trans.load(":/trans/ts_zh_tw/main_ui_zh_tw.qm")
                 self.trans2.load(":/trans/ts_zh_tw/ui_rpc_zh_tw.qm")
                 self.trans3.load(":/trans/ts_zh_tw/ui_config_zh_tw.qm")
                 self.trans4.load(":/trans/ts_zh_tw/ui_dmmlogin_zh_tw.qm")
+                self.more_settings_i18n_file = "./localized_data/config_schema/text_data_info_i18n_zh_tw.json"
 
             self.app.installTranslator(self.trans)
             self.app.installTranslator(self.trans2)
             self.app.installTranslator(self.trans3)
             self.app.installTranslator(self.trans4)
+
+
+        self._more_settings_ui_inited = False
+        self.more_settings_i18n_data = {}
+        if self.more_settings_i18n_file is not None:
+            if os.path.isfile(self.more_settings_i18n_file):
+                with open(self.more_settings_i18n_file, "r", encoding="utf8") as f:
+                    self.more_settings_i18n_data = json.load(f)
 
         super(UIChange, self).__init__()
         self.uma_path = "."
@@ -151,6 +162,11 @@ class UIChange(QWidget):
         self.ui_rpc = RPCUI()
         self.ui_rpc.setupUi(self.window_rpc)
 
+        self.window_moresettings = QMn(self.window)
+        self.window_moresettings.setWindowIcon(QtGui.QIcon(":/img/jia.ico"))
+        self.ui_moresettings = MoreSettingsUI()
+        self.ui_moresettings.setupUi(self.window_moresettings)
+
         self.window.add_close_callback(self.close_other_window)  # 主窗口最小化时关闭其它窗口
         self.window.add_quit_callback(self.main_on_quit)
 
@@ -168,6 +184,10 @@ class UIChange(QWidget):
         self._fastreboot_btn_clicked_time = 0
         self._fastreboot_btn_is_long = False
 
+        self.checkBox_more_info = {}
+        self.text_data_info = {}
+
+
     def load_args(self):
         args = sys.argv
         if len(args) > 1:
@@ -178,6 +198,7 @@ class UIChange(QWidget):
                     break
 
             if self.tlg_http_port is not None:
+                self.more_settings_save()
                 if f"--tlgport={self.tlg_http_port}" in args:
                     args.remove(f"--tlgport={self.tlg_http_port}")
 
@@ -195,7 +216,7 @@ class UIChange(QWidget):
         if os.path.isfile(f"{self.uma_path}/umamusume.exe"):
             self.ui.pushButton_fast_login.setEnabled(True)
         else:
-            self.ui.pushButton_fast_login.setEnabled(False)  # TODO 记得改回False
+            self.ui.pushButton_fast_login.setEnabled(False)
 
     def regist_callback(self):
         self.ui.pushButton_config_settings.clicked.connect(self.show_config_settings_window)
@@ -229,6 +250,9 @@ class UIChange(QWidget):
         self.update_btn_click_signal.connect(lambda *x: self.ui.pushButton_plugin_update.click())
         self.ui.pushButton_reload_config.clicked.connect(self.reload_config)
         self.update_btn_enable.connect(lambda x: self.ui.pushButton_plugin_update.setEnabled(x))
+
+        self.ui.pushButton_more.clicked.connect(self.more_settings_ui_show)
+        self.ui_moresettings.pushButton_save.clicked.connect(self.more_settings_save)
 
     def close_other_window(self):
         mwindows = [self.window_rpc, self.window_config]
@@ -590,6 +614,7 @@ del reboot.bat & exit"""
         if self.tlg_http_port is not None:
             rp = self.show_message_box("Reload Config", "Reload Config Right Now?")
             if rp == QtWidgets.QMessageBox.Yes:
+                self.more_settings_save()
                 def _():
                     try:
                         resp = requests.post(f"http://127.0.0.1:{self.tlg_http_port}/sets",
@@ -606,6 +631,154 @@ del reboot.bat & exit"""
 
         else:
             self.show_message_box("Reload Config", "Please Restart the Game.", QtWidgets.QMessageBox.Yes)
+
+    def more_settings_trans(self, kw1: str, kw2=None):
+        if kw1 in self.more_settings_i18n_data:
+            if isinstance(self.more_settings_i18n_data[kw1], dict):
+                if kw2 is None:
+                    return kw1
+                else:
+                    if kw2 in self.more_settings_i18n_data[kw1]:
+                        return str(self.more_settings_i18n_data[kw1][kw2])
+            elif isinstance(self.more_settings_i18n_data[kw1], str):
+                return self.more_settings_i18n_data[kw1]
+        return kw1 if kw2 is None else kw2
+
+    def more_settings_ui_show(self, *args):
+        try:
+            self.more_settings_ui_init()
+        except BaseException as e:
+            self.show_message_box("Exception Occurred", f"function: more_settings_ui_show - more_settings_ui_init\n"
+                                                        f"{repr(e)}")
+        self.window_moresettings.show()
+
+    def more_settings_ui_init(self, *args):
+        def get_label(parent, text, tooltip):
+            _label = QtWidgets.QLabel(parent)
+            _label.setToolTip(tooltip)
+            _label.setText(text)
+            return _label
+
+        self.checkBox_more_info = {}
+
+        if not os.path.isfile("./localized_data/config_schema/text_data_info.json"):
+            return
+
+        with open("./localized_data/config_schema/text_data_info.json", "r", encoding="utf8") as f:
+            self.text_data_info = json.load(f)
+            text_data_info = self.text_data_info
+
+        widg = QtWidgets.QWidget()
+        layout = QtWidgets.QFormLayout()
+
+        for k in text_data_info:
+            if k == "bool":
+                sub_bool_layout = QtWidgets.QFormLayout()
+                gbg = QtWidgets.QGroupBox()
+                gbg.setTitle("General")
+                for i in text_data_info["bool"]:
+                    label = get_label(gbg, self.more_settings_trans(i), i)
+                    aa = QtWidgets.QCheckBox()
+                    sub_bool_layout.addRow(label, aa)
+
+                    if i in rpc_data.more_settings_data:
+                        aa.setChecked(bool(rpc_data.more_settings_data[i]))
+
+                    gbg.setLayout(sub_bool_layout)
+                    self.checkBox_more_info[i] = aa
+                layout.addRow(gbg)
+
+            if k not in ["bool", "boolable"]:
+                if isinstance(text_data_info[k], dict):
+                    gb = QtWidgets.QGroupBox()
+                    gb.setTitle(k)
+                    self.checkBox_more_info[k] = {}
+
+                    sub_layout = QtWidgets.QFormLayout()
+                    if k in text_data_info.get("boolable", []):
+                        label = get_label(gb, self.more_settings_trans("closeAll"), None)
+                        aa = QtWidgets.QCheckBox()
+                        sub_layout.addRow(label, aa)
+                        if k in rpc_data.more_settings_data:
+                            if "closeAll" in rpc_data.more_settings_data[k]:
+                                aa.setChecked(bool(rpc_data.more_settings_data[k]["closeAll"]))
+                        self.checkBox_more_info[k]["closeAll"] = aa
+
+                    for kw in text_data_info[k]:
+                        label = get_label(gb, self.more_settings_trans(k, kw), kw)
+                        aa = QtWidgets.QCheckBox()
+                        sub_layout.addRow(label, aa)
+                        if k in rpc_data.more_settings_data:
+                            if kw in rpc_data.more_settings_data[k]:
+                                aa.setChecked(bool(rpc_data.more_settings_data[k][kw]))
+                        self.checkBox_more_info[k][kw] = aa
+
+                    gb.setLayout(sub_layout)
+                    layout.addRow(gb)
+
+        widg.setLayout(layout)
+        self.ui_moresettings.scrollArea_trans_settings.setWidget(widg)
+        self._more_settings_ui_inited = True
+
+    def more_settings_save(self, *args):
+        try:
+            if not self._more_settings_ui_inited:
+                self.more_settings_ui_init()
+
+            result = {}
+            for k in self.checkBox_more_info:
+                if isinstance(self.checkBox_more_info[k], dict):
+                    result[k] = {}
+                    for kw in self.checkBox_more_info[k]:
+                        if isinstance(self.checkBox_more_info[k][kw], QtWidgets.QCheckBox):
+                            result[k][kw] = self.checkBox_more_info[k][kw].isChecked()
+                        else:
+                            print("暂不支持两层以上的嵌套")
+                elif isinstance(self.checkBox_more_info[k], QtWidgets.QCheckBox):
+                    result[k] = self.checkBox_more_info[k].isChecked()
+
+            rpc_data.more_settings_data = result
+            rpc_data.write_config()
+            self.result_to_post_data(result)
+            if self.window_moresettings.isActiveWindow():
+                self.window_moresettings.close()
+        except BaseException as e:
+            self.show_message_box("Exception Occurred", f"function: more_settings_save\n{repr(e)}")
+
+    def result_to_post_data(self, result: dict):
+        body = {}
+        for k in self.text_data_info:
+            if k == "bool":
+                for i in self.text_data_info["bool"]:
+                    if i in result:
+                        if isinstance(result[i], bool):
+                            body[i] = result[i]
+            elif k == "boolable":
+                continue
+            else:
+                body[k] = []
+                if k in result:
+                    if isinstance(result[k], dict):
+                        if k in self.text_data_info.get("boolable", []):
+                            if result[k].get("closeAll", False):
+                                body[k] = True
+                                continue
+                        for kw in result[k]:
+                            if result[k][kw]:
+                                if kw in self.text_data_info[k]:
+                                    body[k] += self.text_data_info[k][kw]
+
+        def _():
+            try:
+                if self.tlg_http_port is None:
+                    return
+                requests.post(f"http://127.0.0.1:{self.tlg_http_port}/set_untrans",
+                              headers={'Content-Type': 'application/json'},
+                              data=json.dumps(body))
+            except BaseException as e:
+                self.show_message_signal.emit("Set Trans Failed", repr(e))
+
+        threading.Thread(target=_).start()
 
     def ui_run_main(self):
         self.window.show()
