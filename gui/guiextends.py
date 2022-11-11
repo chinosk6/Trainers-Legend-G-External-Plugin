@@ -653,11 +653,16 @@ del reboot.bat & exit"""
         self.window_moresettings.show()
 
     def more_settings_ui_init(self, *args):
-        def get_label(parent, text, tooltip):
+        def get_label(parent, text, tooltip, min_wid=250, max_wid=250):
             _label = QtWidgets.QLabel(parent)
             _label.setToolTip(tooltip)
             _label.setText(text)
+            if min_wid is not None:
+                _label.setMinimumWidth(min_wid)
+            if max_wid is not None:
+                _label.setMaximumWidth(max_wid)
             return _label
+
 
         self.checkBox_more_info = {}
 
@@ -673,12 +678,12 @@ del reboot.bat & exit"""
 
         for k in text_data_info:
             if k == "bool":
-                sub_bool_layout = QtWidgets.QFormLayout()
-                gbg = QtWidgets.QGroupBox()
+                gbg = QtWidgets.QGroupBox(widg)
                 gbg.setTitle("General")
+                sub_bool_layout = QtWidgets.QFormLayout(gbg)
                 for i in text_data_info["bool"]:
                     label = get_label(gbg, self.more_settings_trans(i), i)
-                    aa = QtWidgets.QCheckBox()
+                    aa = QtWidgets.QCheckBox(gbg)
                     sub_bool_layout.addRow(label, aa)
 
                     if i in rpc_data.more_settings_data:
@@ -690,14 +695,14 @@ del reboot.bat & exit"""
 
             if k not in ["bool", "boolable"]:
                 if isinstance(text_data_info[k], dict):
-                    gb = QtWidgets.QGroupBox()
+                    gb = QtWidgets.QGroupBox(widg)
                     gb.setTitle(k)
                     self.checkBox_more_info[k] = {}
 
-                    sub_layout = QtWidgets.QFormLayout()
+                    sub_layout = QtWidgets.QFormLayout(gb)
                     if k in text_data_info.get("boolable", []):
                         label = get_label(gb, self.more_settings_trans("closeAll"), None)
-                        aa = QtWidgets.QCheckBox()
+                        aa = QtWidgets.QCheckBox(gb)
                         sub_layout.addRow(label, aa)
                         if k in rpc_data.more_settings_data:
                             if "closeAll" in rpc_data.more_settings_data[k]:
@@ -706,7 +711,7 @@ del reboot.bat & exit"""
 
                     for kw in text_data_info[k]:
                         label = get_label(gb, self.more_settings_trans(k, kw), kw)
-                        aa = QtWidgets.QCheckBox()
+                        aa = QtWidgets.QCheckBox(gb)
                         sub_layout.addRow(label, aa)
                         if k in rpc_data.more_settings_data:
                             if kw in rpc_data.more_settings_data[k]:
