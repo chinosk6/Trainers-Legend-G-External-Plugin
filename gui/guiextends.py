@@ -310,8 +310,12 @@ del reboot.bat & exit"""
     def save_config_changes(self, *args):
         if self.cache_config_changes is not None:
             if os.path.isfile(f"{self.uma_path}/config.json"):
+                with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as f:
+                    orig_data = json.load(f)
+
                 with open(f"{self.uma_path}/config.json", "w", encoding="utf8") as f:
-                    json.dump(self.cache_config_changes, f, ensure_ascii=False, indent=4)
+                    orig_data.update(self.cache_config_changes)
+                    json.dump(orig_data, f, ensure_ascii=False, indent=4)
         self.window_config.close()
         self.reload_config()
 
