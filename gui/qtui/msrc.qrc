@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="img">
+    <file>ts_zh_tw/more_ui_zh_tw.qm</file>
     <file>jia.ico</file>
     <file>jiji.ico</file>
     <file>jileba.ico</file>
@@ -10,6 +11,7 @@
     <file>7z.dll</file>
   </qresource>
   <qresource prefix="trans">
+    <file>more_ui.qm</file>
     <file>ts_zh_tw/main_ui_zh_tw.qm</file>
     <file>ts_zh_tw/ui_config_zh_tw.qm</file>
     <file>ts_zh_tw/ui_dmmlogin_zh_tw.qm</file>

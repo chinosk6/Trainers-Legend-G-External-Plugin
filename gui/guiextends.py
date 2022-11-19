@@ -12,10 +12,15 @@ import os
 import ctypes
 import webbrowser
 import pyperclip
+from pynput import keyboard
+from base64 import b64decode as bbq
 from . import uma_icon_data
 from . import discord_rpc
 from . import unzip_file
 from . import qtray
+from . import http_server
+from . import uma_tools
+
 
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
 local_language = ctypes.windll.kernel32.GetUserDefaultUILanguage()
@@ -39,6 +44,7 @@ else:
 
 last_sub_close_time = 0
 
+uma_server = http_server.UmaServer()
 
 class AutoUpdateError(Exception):
     pass
@@ -83,9 +89,27 @@ class Qm2(QMainWindow):
 
 
 class QMn(QMainWindow):
+    def __init__(self, *args, **kwargs):
+        super(QMn, self).__init__(*args, **kwargs)
+        self.onclose_callback = None
+        self.onshow_callback = None
+
+    def set_onclose_callback(self, func):
+        self.onclose_callback = func
+
+    def set_onshow_callback(self, func):
+        self.onshow_callback = func
+
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         global last_sub_close_time
         last_sub_close_time = time.time()
+        if self.onclose_callback is not None:
+            self.onclose_callback()
+
+    def showEvent(self, a0: QtGui.QShowEvent) -> None:
+        super().showEvent(a0)
+        if self.onshow_callback is not None:
+            self.onshow_callback()
 
 
 class UIChange(QWidget):
@@ -102,6 +126,7 @@ class UIChange(QWidget):
     dmm_login_success_signal = QtCore.pyqtSignal(str)
     dmm_button_login_cache_signal = QtCore.pyqtSignal(str)
     update_btn_enable = QtCore.pyqtSignal(bool)
+    kb_event_pass = QtCore.pyqtSignal()
 
     def __init__(self):
         self.app = QApplication(sys.argv)
@@ -119,6 +144,8 @@ class UIChange(QWidget):
                 self.trans2.load(":/trans/ui_rpc.qm")
                 self.trans3.load(":/trans/ui_config.qm")
                 self.trans4.load(":/trans/ui_dmmlogin.qm")
+                self.trans4.load(":/trans/more_ui.qm")
+                self.trans4.load(":/trans/more_ui_zh_tw.qm")
                 self.more_settings_i18n_file = "./localized_data/config_schema/text_data_info_i18n_zh.json"
             if local_language in tChinese_lang_id:
                 self.trans.load(":/trans/ts_zh_tw/main_ui_zh_tw.qm")
@@ -132,7 +159,15 @@ class UIChange(QWidget):
             self.app.installTranslator(self.trans3)
             self.app.installTranslator(self.trans4)
 
-
+        try:
+            self.listener = keyboard.Listener(on_press=self.check_hotk)
+        except:
+            pass
+        self.listener_status = 0
+        self.listener_steps = [keyboard.Key.up, keyboard.Key.up, keyboard.Key.down, keyboard.Key.down,
+                               keyboard.Key.left, keyboard.Key.right, keyboard.Key.left, keyboard.Key.right,
+                               keyboard.KeyCode(char='b'), keyboard.KeyCode(char='a'),
+                               keyboard.KeyCode(char='b'), keyboard.KeyCode(char='a')]
         self._more_settings_ui_inited = False
         self.more_settings_i18n_data = {}
         if self.more_settings_i18n_file is not None:
@@ -164,14 +199,20 @@ class UIChange(QWidget):
 
         self.window_moresettings = QMn(self.window)
         self.window_moresettings.setWindowIcon(QtGui.QIcon(":/img/jia.ico"))
+        self.window_moresettings.set_onclose_callback(self.more_settings_close)
+        self.window_moresettings.set_onshow_callback(self.more_settings_show)
         self.ui_moresettings = MoreSettingsUI()
         self.ui_moresettings.setupUi(self.window_moresettings)
+        self.ui_moresettings.checkBox_unlock_plain_dress.setChecked(
+            rpc_data.more_settings_data.get("unlock_plain_dress", False)
+        )
+        self.check_inner()
 
         self.window.add_close_callback(self.close_other_window)  # 主窗口最小化时关闭其它窗口
         self.window.add_quit_callback(self.main_on_quit)
 
-        self.load_args()
         self.config_form = self.get_schema_form()
+        self.load_args()
         if self.config_form is None:
             self.ui.pushButton_config_settings.setEnabled(False)
 
@@ -187,7 +228,6 @@ class UIChange(QWidget):
         self.checkBox_more_info = {}
         self.text_data_info = {}
 
-
     def load_args(self):
         args = sys.argv
         if len(args) > 1:
@@ -198,6 +238,12 @@ class UIChange(QWidget):
                     break
 
             if self.tlg_http_port is not None:
+                try:
+                    _tlg_port = int(self.tlg_http_port)
+                    uma_server.start_server(_tlg_port, _tlg_port + 1)
+                except BaseException as e:
+                    self.show_message_box("Exception Occurred", f"Start server failed!\n{e}")
+
                 self.more_settings_save()
                 if f"--tlgport={self.tlg_http_port}" in args:
                     args.remove(f"--tlgport={self.tlg_http_port}")
@@ -250,9 +296,12 @@ class UIChange(QWidget):
         self.update_btn_click_signal.connect(lambda *x: self.ui.pushButton_plugin_update.click())
         self.ui.pushButton_reload_config.clicked.connect(self.reload_config)
         self.update_btn_enable.connect(lambda x: self.ui.pushButton_plugin_update.setEnabled(x))
+        self.kb_event_pass.connect(self.kb_pass)
 
         self.ui.pushButton_more.clicked.connect(self.more_settings_ui_show)
         self.ui_moresettings.pushButton_save.clicked.connect(self.more_settings_save)
+        self.ui_moresettings.pushButton_unlock_dress.clicked.connect(self.unlock_cloth)
+        self.ui_moresettings.pushButton_check_pwd.clicked.connect(self.check_inpwd)
 
     def close_other_window(self):
         mwindows = [self.window_rpc, self.window_config]
@@ -361,6 +410,7 @@ del reboot.bat & exit"""
                 with open(f"{base_path}/config.json", "r", encoding="utf8") as f:
                     json_data = json.load(f)
                     form.widget.state = json_data
+                    self.ui_moresettings.checkBox_bypass_205.setChecked(json_data.get("bypass_live_205", False))
             else:
                 form.widget.state = {}
 
@@ -731,6 +781,23 @@ del reboot.bat & exit"""
 
     def more_settings_save(self, *args):
         try:
+            is_enable_unlock_plain_cloth = self.ui_moresettings.checkBox_unlock_plain_dress.isChecked()
+            uma_server.set_enable_unlock_plain_cloth(is_enable_unlock_plain_cloth)
+
+            if os.path.isfile(f"{self.uma_path}/config.json"):
+                with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as f:
+                    config_data = json.load(f)
+                orig_stat = config_data.get("bypass_live_205", False)
+                if "bypass_live_205" in config_data:
+                    config_data["bypass_live_205"] = self.ui_moresettings.checkBox_bypass_205.isChecked()
+                elif self.ui_moresettings.checkBox_bypass_205.isChecked():
+                    config_data["bypass_live_205"] = True
+
+                if orig_stat != self.ui_moresettings.checkBox_bypass_205.isChecked():
+                    with open(f"{self.uma_path}/config.json", "w", encoding="utf8") as fw:
+                        fw.write(json.dumps(config_data, indent=4, ensure_ascii=False))
+                    self.reload_config()
+
             if not self._more_settings_ui_inited:
                 self.more_settings_ui_init()
 
@@ -746,7 +813,8 @@ del reboot.bat & exit"""
                 elif isinstance(self.checkBox_more_info[k], QtWidgets.QCheckBox):
                     result[k] = self.checkBox_more_info[k].isChecked()
 
-            rpc_data.more_settings_data = result
+            rpc_data.more_settings_data.update(result)
+            rpc_data.more_settings_data["unlock_plain_dress"] = is_enable_unlock_plain_cloth
             rpc_data.write_config()
             self.result_to_post_data(result)
             if self.window_moresettings.isActiveWindow():
@@ -788,6 +856,68 @@ del reboot.bat & exit"""
                 self.show_message_signal.emit("Set Trans Failed", repr(e))
 
         threading.Thread(target=_).start()
+
+    def unlock_cloth(self, *argsm):
+        try:
+            res = self.show_message_box("Unlock Dress", f"Need to quit the game first, do you want to continue?")
+            if res == QtWidgets.QMessageBox.Yes:
+                open(f"{self.uma_path}/dontcloseext.lock", "wb").close()
+                os.system("taskkill /im \"umamusume.exe\"")
+                time.sleep(2)
+                ut = uma_tools.UmaTools()
+                ut.unlock_live_dress()
+                rs2 = self.show_message_box("Unlock Success", f"Success!\nRestart Game?")
+                if rs2 == QtWidgets.QMessageBox.Yes:
+                    self.game_fast_reboot()
+        except BaseException as e:
+            rs2 = self.show_message_box("Exception Occurred", f"Unlocking failed or you already unlocked."
+                                                              f"\n{repr(e)}\n\nRestart Game?")
+            if rs2 == QtWidgets.QMessageBox.Yes:
+                self.game_fast_reboot()
+
+    def more_settings_show(self):
+        try:
+            self.listener.start()
+        except BaseException:
+            try:
+                self.listener = keyboard.Listener(on_press=self.check_hotk)
+                self.listener.start()
+            except BaseException as e:
+                self.show_message_box("Exception Occurred", f"Can't catch input: {e}")
+
+    def more_settings_close(self):
+        try:
+            self.listener.stop()
+            del self.listener
+            self.listener = keyboard.Listener(on_press=self.check_hotk)
+        except:
+            pass
+
+    def check_hotk(self, key):
+        if self.listener_status <= len(self.listener_steps) - 1:
+            if key == self.listener_steps[self.listener_status]:
+                self.listener_status += 1
+                if self.listener_status == len(self.listener_steps):
+                    self.kb_event_pass.emit()
+                return
+        self.listener_status = 0
+
+    def kb_pass(self, *args):
+        self.ui_moresettings.groupBox_2.show()
+        self.ui_moresettings.groupBox__pwd.show()
+
+    def check_inner(self):
+        self.ui_moresettings.groupBox__pwd.hide()
+        if rpc_data.more_settings_data.get("tlg_inner", 0) < 5:
+            self.ui_moresettings.groupBox_2.hide()
+            self.ui_moresettings.groupBox_bypass.hide()
+
+    def check_inpwd(self, *args):
+        if self.ui_moresettings.lineEdit_pwd.text() == bbq("aGFjaGltaQ==").decode("utf8"):
+            rpc_data.more_settings_data["tlg_inner"] = 5
+            rpc_data.write_config()
+            self.ui_moresettings.groupBox_bypass.show()
+        self.ui_moresettings.groupBox__pwd.hide()
 
     def ui_run_main(self):
         self.window.show()

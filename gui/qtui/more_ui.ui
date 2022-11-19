@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>439</width>
-    <height>553</height>
+    <width>410</width>
+    <height>582</height>
    </rect>
   </property>
   <property name="font">
@@ -36,11 +36,100 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>391</width>
-            <height>436</height>
+            <width>362</width>
+            <height>233</height>
            </rect>
           </property>
          </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="title">
+       <string>Other Settings</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QGroupBox" name="groupBox__pwd">
+         <property name="title">
+          <string>More Settings</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLineEdit" name="lineEdit_pwd"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_check_pwd">
+            <property name="text">
+             <string>ok</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_bypass">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="title">
+          <string>Live Unlock Dress</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,0">
+          <item>
+           <widget class="QPushButton" name="pushButton_unlock_dress">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>190</width>
+              <height>10000</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Unlock General Dress</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QCheckBox" name="checkBox_bypass_205">
+              <property name="text">
+               <string>Bypass 205</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBox_unlock_plain_dress">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>10000</width>
+                <height>10000</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Unlock All</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>

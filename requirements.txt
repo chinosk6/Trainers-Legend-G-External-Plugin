@@ -7,3 +7,6 @@ selenium
 getmac
 wmi
 pyperclip
+flask
+msgpack
+pynput
