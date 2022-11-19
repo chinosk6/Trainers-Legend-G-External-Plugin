@@ -138,26 +138,28 @@ class UIChange(QWidget):
             self.trans2 = QtCore.QTranslator()
             self.trans3 = QtCore.QTranslator()
             self.trans4 = QtCore.QTranslator()
+            self.trans5 = QtCore.QTranslator()
 
             if local_language in sChinese_lang_id:
                 self.trans.load(":/trans/main_ui.qm")
                 self.trans2.load(":/trans/ui_rpc.qm")
                 self.trans3.load(":/trans/ui_config.qm")
                 self.trans4.load(":/trans/ui_dmmlogin.qm")
-                self.trans4.load(":/trans/more_ui.qm")
-                self.trans4.load(":/trans/more_ui_zh_tw.qm")
+                self.trans5.load(":/trans/more_ui.qm")
                 self.more_settings_i18n_file = "./localized_data/config_schema/text_data_info_i18n_zh.json"
             if local_language in tChinese_lang_id:
                 self.trans.load(":/trans/ts_zh_tw/main_ui_zh_tw.qm")
                 self.trans2.load(":/trans/ts_zh_tw/ui_rpc_zh_tw.qm")
                 self.trans3.load(":/trans/ts_zh_tw/ui_config_zh_tw.qm")
                 self.trans4.load(":/trans/ts_zh_tw/ui_dmmlogin_zh_tw.qm")
+                self.trans5.load(":/trans/more_ui_zh_tw.qm")
                 self.more_settings_i18n_file = "./localized_data/config_schema/text_data_info_i18n_zh_tw.json"
 
             self.app.installTranslator(self.trans)
             self.app.installTranslator(self.trans2)
             self.app.installTranslator(self.trans3)
             self.app.installTranslator(self.trans4)
+            self.app.installTranslator(self.trans5)
 
         try:
             self.listener = keyboard.Listener(on_press=self.check_hotk)
