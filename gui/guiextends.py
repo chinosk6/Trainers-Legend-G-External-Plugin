@@ -152,7 +152,7 @@ class UIChange(QWidget):
                 self.trans2.load(":/trans/ts_zh_tw/ui_rpc_zh_tw.qm")
                 self.trans3.load(":/trans/ts_zh_tw/ui_config_zh_tw.qm")
                 self.trans4.load(":/trans/ts_zh_tw/ui_dmmlogin_zh_tw.qm")
-                self.trans5.load(":/trans/more_ui_zh_tw.qm")
+                self.trans5.load(":/trans/ts_zh_tw/more_ui_zh_tw.qm")
                 self.more_settings_i18n_file = "./localized_data/config_schema/text_data_info_i18n_zh_tw.json"
 
             self.app.installTranslator(self.trans)
