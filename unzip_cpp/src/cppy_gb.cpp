@@ -5,6 +5,7 @@
 
 #include "bitextractor.hpp"
 #include "bitexception.hpp"
+#include "resize_window.hpp"
 
 using namespace bit7z;
 namespace py = pybind11;
@@ -47,5 +48,18 @@ PYBIND11_MODULE(umauitools, m) {
         .def(py::init<const std::string&>())
         .def("decompress_file", &UnzipZip::decompress_file)
 		.def_readwrite("wuhu", &UnzipZip::wuhu)
+        ;
+
+    py::class_<WindowResize>(m, "WindowController")
+        .def(py::init<const std::string&>())
+        .def("setClassName", &WindowResize::setClassName)
+        .def("getWindow", &WindowResize::getWindow)
+        .def("setWindowPosOffset", &WindowResize::setWindowPosOffset)
+        .def("moveWindowPosOffset", &WindowResize::moveWindowPosOffset)
+        .def("moveWindow", &WindowResize::moveWindow)
+        .def("getWindowPos", &WindowResize::getWindowPos)
+        .def("resizeWindow", &WindowResize::resizeWindow)
+        .def_readwrite("classsName", &WindowResize::classsName)
+        .def_readwrite("windowName", &WindowResize::windowName)
         ;
 }

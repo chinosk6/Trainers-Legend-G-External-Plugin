@@ -1,5 +1,3 @@
-import time
-
 from flask import Flask, request
 import threading
 from . import game_pack_modify as gmp
@@ -12,6 +10,7 @@ class UmaServer:
         self.port = -1
 
         self.enable_unlock_plain_cloth = False
+        self.unlock_stories = False
 
     def set_port(self, value: int):
         self.port = value
@@ -19,12 +18,15 @@ class UmaServer:
     def set_enable_unlock_plain_cloth(self, value: bool):
         self.enable_unlock_plain_cloth = value
 
+    def set_unlock_stories(self, value: bool):
+        self.unlock_stories = value
+
     def on_live_unlock(self):
         p_data = request.data
         if not self.enable_unlock_plain_cloth:
             return "not match", 202
 
-        success, data = gmp.unlock_live_dress(p_data)
+        success, data = gmp.unlock_live_dress(p_data, self.unlock_stories)
         if success:
             return data
         else:

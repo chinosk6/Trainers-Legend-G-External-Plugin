@@ -109,3 +109,13 @@ class UmaTools:
             card_ids.append(int(i[1]))
         cursor.close()
         return ret, list(set(card_ids))
+
+    def get_story_ids(self, chara: list = None):
+        cursor = self.conn.cursor()
+        chara_ids = chara if chara is not None else self.get_uma_card_ids()[1]
+        ret_ids = []
+        for i in chara_ids:
+            query = cursor.execute("SELECT n FROM a WHERE n like ?", [f"%story/data/50/{i}/storytimeline_%"]).fetchall()
+            ret_ids += [(i, ids[0][-9:]) for ids in query]
+        cursor.close()
+        return ret_ids

@@ -1,7 +1,7 @@
 import threading
 import time
 import requests
-from .qtui.ui_import import MainUI, ConfigUI, RPCUI, MoreSettingsUI
+from .qtui.ui_import import MainUI, ConfigUI, RPCUI, MoreSettingsUI, WindowSettingsUI
 from .qtui import msrc_rc  # 不能删
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QDialog, QApplication, QMainWindow, QWidget
@@ -20,6 +20,11 @@ from . import unzip_file
 from . import qtray
 from . import http_server
 from . import uma_tools
+try:
+    from . import umauitools
+    import_cpp_success = True
+except:
+    import_cpp_success = False
 
 
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
@@ -139,6 +144,7 @@ class UIChange(QWidget):
             self.trans3 = QtCore.QTranslator()
             self.trans4 = QtCore.QTranslator()
             self.trans5 = QtCore.QTranslator()
+            self.trans6 = QtCore.QTranslator()
 
             if local_language in sChinese_lang_id:
                 self.trans.load(":/trans/main_ui.qm")
@@ -146,6 +152,7 @@ class UIChange(QWidget):
                 self.trans3.load(":/trans/ui_config.qm")
                 self.trans4.load(":/trans/ui_dmmlogin.qm")
                 self.trans5.load(":/trans/more_ui.qm")
+                self.trans6.load(":/trans/window_settings.qm")
                 self.more_settings_i18n_file = "./localized_data/config_schema/text_data_info_i18n_zh.json"
             if local_language in tChinese_lang_id:
                 self.trans.load(":/trans/ts_zh_tw/main_ui_zh_tw.qm")
@@ -153,6 +160,7 @@ class UIChange(QWidget):
                 self.trans3.load(":/trans/ts_zh_tw/ui_config_zh_tw.qm")
                 self.trans4.load(":/trans/ts_zh_tw/ui_dmmlogin_zh_tw.qm")
                 self.trans5.load(":/trans/ts_zh_tw/more_ui_zh_tw.qm")
+                self.trans6.load(":/trans/ts_zh_tw/window_settings.qm")
                 self.more_settings_i18n_file = "./localized_data/config_schema/text_data_info_i18n_zh_tw.json"
 
             self.app.installTranslator(self.trans)
@@ -160,6 +168,7 @@ class UIChange(QWidget):
             self.app.installTranslator(self.trans3)
             self.app.installTranslator(self.trans4)
             self.app.installTranslator(self.trans5)
+            self.app.installTranslator(self.trans6)
 
         try:
             self.listener = keyboard.Listener(on_press=self.check_hotk)
@@ -208,6 +217,12 @@ class UIChange(QWidget):
         self.ui_moresettings.checkBox_unlock_plain_dress.setChecked(
             rpc_data.more_settings_data.get("unlock_plain_dress", False)
         )
+
+        self.window_windowsettings = QMn(self.window)
+        self.window_windowsettings.setWindowIcon(QtGui.QIcon(":/img/jishao.ico"))
+        self.ui_windowsettings = WindowSettingsUI()
+        self.ui_windowsettings.setupUi(self.window_windowsettings)
+
         self.check_inner()
 
         self.window.add_close_callback(self.close_other_window)  # 主窗口最小化时关闭其它窗口
@@ -229,6 +244,7 @@ class UIChange(QWidget):
 
         self.checkBox_more_info = {}
         self.text_data_info = {}
+        self.aspect_ratio_set = 16.0 / 9.0
 
     def load_args(self):
         args = sys.argv
@@ -265,6 +281,20 @@ class UIChange(QWidget):
             self.ui.pushButton_fast_login.setEnabled(True)
         else:
             self.ui.pushButton_fast_login.setEnabled(False)
+
+    def load_rules(self):
+        reg = QtCore.QRegExp("[0-9]+$")
+        validator = QtGui.QRegExpValidator(self)
+        validator.setRegExp(reg)
+        self.ui_windowsettings.lineEdit_move_step.setValidator(validator)
+        self.ui_windowsettings.lineEdit_x_hori.setValidator(validator)
+        self.ui_windowsettings.lineEdit_y_hori.setValidator(validator)
+        self.ui_windowsettings.lineEdit_w_hori.setValidator(validator)
+        self.ui_windowsettings.lineEdit_h_hori.setValidator(validator)
+        self.ui_windowsettings.lineEdit_x_vert.setValidator(validator)
+        self.ui_windowsettings.lineEdit_y_vert.setValidator(validator)
+        self.ui_windowsettings.lineEdit_w_vert.setValidator(validator)
+        self.ui_windowsettings.lineEdit_h_vert.setValidator(validator)
 
     def regist_callback(self):
         self.ui.pushButton_config_settings.clicked.connect(self.show_config_settings_window)
@@ -304,6 +334,22 @@ class UIChange(QWidget):
         self.ui_moresettings.pushButton_save.clicked.connect(self.more_settings_save)
         self.ui_moresettings.pushButton_unlock_dress.clicked.connect(self.unlock_cloth)
         self.ui_moresettings.pushButton_check_pwd.clicked.connect(self.check_inpwd)
+        self.ui_moresettings.pushButton_window_settings.clicked.connect(self.window_settings_show)
+
+        self.ui_windowsettings.pushButton_refresh.clicked.connect(self.refresh_window_position)
+        self.ui_windowsettings.pushButton_up.clicked.connect(self.move_window(1))
+        self.ui_windowsettings.pushButton_left.clicked.connect(self.move_window(2))
+        self.ui_windowsettings.pushButton_right.clicked.connect(self.move_window(3))
+        self.ui_windowsettings.pushButton_down.clicked.connect(self.move_window(4))
+        self.ui_windowsettings.pushButton_sync_pos.clicked.connect(self.sync_pos_data)
+        self.ui_windowsettings.pushButton_update_pos.clicked.connect(self.update_window_positoon)
+        self.ui_windowsettings.lineEdit_w_hori.textChanged.connect(self.window_text_changed(0))
+        self.ui_windowsettings.lineEdit_h_hori.textChanged.connect(self.window_text_changed(1))
+        self.ui_windowsettings.lineEdit_w_vert.textChanged.connect(self.window_text_changed(2))
+        self.ui_windowsettings.lineEdit_h_vert.textChanged.connect(self.window_text_changed(3))
+        self.ui_windowsettings.pushButton_set_ratio.clicked.connect(self.set_ratio_clicked)
+
+        self.load_rules()
 
     def close_other_window(self):
         mwindows = [self.window_rpc, self.window_config]
@@ -911,7 +957,6 @@ del reboot.bat & exit"""
     def check_inner(self):
         self.ui_moresettings.groupBox__pwd.hide()
         if rpc_data.more_settings_data.get("tlg_inner", 0) < 5:
-            self.ui_moresettings.groupBox_2.hide()
             self.ui_moresettings.groupBox_bypass.hide()
 
     def check_inpwd(self, *args):
@@ -920,6 +965,184 @@ del reboot.bat & exit"""
             rpc_data.write_config()
             self.ui_moresettings.groupBox_bypass.show()
         self.ui_moresettings.groupBox__pwd.hide()
+
+    def get_window_controller(self):
+        window_name = self.ui_windowsettings.lineEdit_window_name.text()
+        class_name = self.ui_windowsettings.lineEdit_class_name.text()
+        wc = umauitools.WindowController(window_name)
+        if class_name:
+            wc.setClassName(class_name)
+        return wc
+
+    def move_window(self, clicked_index: int):  # 上左右下
+        def _(*args):
+            move_step = int(self.ui_windowsettings.lineEdit_move_step.text().strip())
+            move_x = move_y = 0
+            if clicked_index == 1:
+                move_y = -move_step
+            elif clicked_index == 2:
+                move_x = -move_step
+            elif clicked_index == 3:
+                move_x = move_step
+            elif clicked_index == 4:
+                move_y = move_step
+            wc = self.get_window_controller()
+            wc.moveWindow(move_x, move_y)
+            self.refresh_window_position()
+        return _
+
+    def update_window_positoon(self, *args):
+        try:
+            now_pos = self.get_window_now_pos()
+            if now_pos is None:
+                self.show_message_box("Update Window Position Failed.", f"Can't find target window.",
+                                      btn=QtWidgets.QMessageBox.Yes)
+                return
+            x, y, w, h = now_pos
+            if w < h:
+                nx = self.ui_windowsettings.lineEdit_x_vert.text().strip()
+                ny = self.ui_windowsettings.lineEdit_y_vert.text().strip()
+                nw = self.ui_windowsettings.lineEdit_w_vert.text().strip()
+                nh = self.ui_windowsettings.lineEdit_h_vert.text().strip()
+                config_base = "vert"
+            else:
+                nx = self.ui_windowsettings.lineEdit_x_hori.text().strip()
+                ny = self.ui_windowsettings.lineEdit_y_hori.text().strip()
+                nw = self.ui_windowsettings.lineEdit_w_hori.text().strip()
+                nh = self.ui_windowsettings.lineEdit_h_hori.text().strip()
+                config_base = "hori"
+            if not all([nx, ny, nw, nh]):
+                self.show_message_box("Error", "Please insert numbers.", btn=QtWidgets.QMessageBox.Yes)
+                return
+            wc = self.get_window_controller()
+            wc.resizeWindow(int(nx), int(ny), int(nw), int(nh))
+            self.refresh_window_position()
+
+            if "hori" not in rpc_data.window_settings_data:
+                rpc_data.window_settings_data["hori"] = {}
+            if "vert" not in rpc_data.window_settings_data:
+                rpc_data.window_settings_data["vert"] = {}
+            rpc_data.window_settings_data[config_base]["x"] = int(nx)
+            rpc_data.window_settings_data[config_base]["y"] = int(ny)
+            rpc_data.window_settings_data[config_base]["w"] = int(nw)
+            rpc_data.window_settings_data[config_base]["h"] = int(nh)
+            rpc_data.write_config()
+        except BaseException as e:
+            self.show_message_box("Exception Occurred", f"Exception Occurred in update_window_positoon:\n{e}",
+                                  btn=QtWidgets.QMessageBox.Yes)
+
+    def sync_pos_data(self, *args):
+        try:
+            x = self.ui_windowsettings.lineEdit_x.text()
+            y = self.ui_windowsettings.lineEdit_y.text()
+            w = int(self.ui_windowsettings.lineEdit_w.text())
+            h = int(self.ui_windowsettings.lineEdit_h.text())
+            if w < h:
+                self.ui_windowsettings.lineEdit_x_vert.setText(x)
+                self.ui_windowsettings.lineEdit_y_vert.setText(y)
+                self.ui_windowsettings.lineEdit_w_vert.setText(str(w))
+                self.ui_windowsettings.lineEdit_h_vert.setText(str(h))
+            else:
+                self.ui_windowsettings.lineEdit_x_hori.setText(x)
+                self.ui_windowsettings.lineEdit_y_hori.setText(y)
+                self.ui_windowsettings.lineEdit_w_hori.setText(str(w))
+                self.ui_windowsettings.lineEdit_h_hori.setText(str(h))
+
+        except BaseException as e:
+            self.show_message_box("Exception Occurred", f"Exception Occurred in sync_pos_data:\n{e}",
+                                  btn=QtWidgets.QMessageBox.Yes)
+            return None
+
+    def get_window_now_pos(self, parse_int=True):
+        try:
+            wc = self.get_window_controller()
+            get_pos = wc.getWindowPos()
+            if not get_pos:
+                return None
+            x, y, w, h = [int(i) if parse_int else i for i in get_pos.split(",")]
+            return (x, y, w, h)
+        except BaseException as e:
+            self.show_message_box("Exception Occurred", f"Exception Occurred in get_window_now_pos:\n{e}",
+                                  btn=QtWidgets.QMessageBox.Yes)
+            return None
+
+    def refresh_window_position(self, *args):
+        try:
+            get_pos = self.get_window_now_pos(parse_int=False)
+            if get_pos is None:
+                self.ui_windowsettings.pushButton_sync_pos.setEnabled(False)
+                self.show_message_box("Get Window Position Failed.", f"Can't find target window.",
+                                      btn=QtWidgets.QMessageBox.Yes)
+                return
+            self.ui_windowsettings.pushButton_sync_pos.setEnabled(True)
+            x, y, w, h = get_pos
+            self.ui_windowsettings.lineEdit_x.setText(x)
+            self.ui_windowsettings.lineEdit_y.setText(y)
+            self.ui_windowsettings.lineEdit_w.setText(w)
+            self.ui_windowsettings.lineEdit_h.setText(h)
+        except BaseException as e:
+            self.show_message_box("Exception Occurred", f"Exception Occurred in refresh_window_position:\n{e}",
+                                  btn=QtWidgets.QMessageBox.Yes)
+
+    def window_text_changed(self, pos_index: int):
+        def _(new_value: str, *args):
+            if new_value == "":
+                return
+            hori_is_checked = self.ui_windowsettings.checkBox_keep_ratio_hori.isChecked()
+            vert_is_checked = self.ui_windowsettings.checkBox_keep_ratio_vert.isChecked()
+            if pos_index == 0:  # hori_w
+                if hori_is_checked:
+                    if self.ui_windowsettings.lineEdit_w_hori.hasFocus():
+                        self.ui_windowsettings.lineEdit_h_hori.setText(str(int(int(new_value) / self.aspect_ratio_set)))
+            elif pos_index == 1:  # hori_h
+                if hori_is_checked:
+                    if self.ui_windowsettings.lineEdit_h_hori.hasFocus():
+                        self.ui_windowsettings.lineEdit_w_hori.setText(str(int(int(new_value) * self.aspect_ratio_set)))
+            elif pos_index == 2:  # vert_w
+                if vert_is_checked:
+                    if self.ui_windowsettings.lineEdit_w_vert.hasFocus():
+                        self.ui_windowsettings.lineEdit_h_vert.setText(str(int(int(new_value) * self.aspect_ratio_set)))
+            elif pos_index == 3:  # vert_h
+                if vert_is_checked:
+                    if self.ui_windowsettings.lineEdit_h_vert.hasFocus():
+                        self.ui_windowsettings.lineEdit_w_vert.setText(str(int(int(new_value) / self.aspect_ratio_set)))
+        return _
+
+    def set_ratio_clicked(self, *args):
+        if self.ui.pushButton_config_settings.isEnabled():
+            self.ui.pushButton_config_settings.click()
+        else:
+            self.show_message_box("Edit Config", "Please edit \"aspect_ratio_new\" in config.json "
+                                                 "and restart the game.")
+
+    def window_settings_show(self, *args):
+        if not import_cpp_success:
+            self.ui_moresettings.pushButton_window_settings.setEnabled(False)
+            self.show_message_box("Module Import Error", "Can't import c++ module!",
+                                  btn=QtWidgets.QMessageBox.Yes)
+            return
+        self.window_windowsettings.show()
+        self.window_moresettings.hide()
+        self.refresh_window_position()
+        if os.path.isfile(f"{self.uma_path}/config.json"):
+            with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as f:
+                data = json.load(f).get("aspect_ratio_new", {})
+                set_w = data.get("w", 16.0)
+                set_h = data.get("h", 9.0)
+            if set_w > set_h:
+                self.aspect_ratio_set = set_w / set_h
+                self.ui_windowsettings.label_aspect_ratio.setText(f"{set_w} : {set_h}")
+            else:
+                self.ui_windowsettings.label_aspect_ratio.setText("Invalid value")
+        self.ui_windowsettings.lineEdit_x_hori.setText(str(rpc_data.window_settings_data.get("hori", {}).get("x", "")))
+        self.ui_windowsettings.lineEdit_y_hori.setText(str(rpc_data.window_settings_data.get("hori", {}).get("y", "")))
+        self.ui_windowsettings.lineEdit_w_hori.setText(str(rpc_data.window_settings_data.get("hori", {}).get("w", "")))
+        self.ui_windowsettings.lineEdit_h_hori.setText(str(rpc_data.window_settings_data.get("hori", {}).get("h", "")))
+        self.ui_windowsettings.lineEdit_x_vert.setText(str(rpc_data.window_settings_data.get("vert", {}).get("x", "")))
+        self.ui_windowsettings.lineEdit_y_vert.setText(str(rpc_data.window_settings_data.get("vert", {}).get("y", "")))
+        self.ui_windowsettings.lineEdit_w_vert.setText(str(rpc_data.window_settings_data.get("vert", {}).get("w", "")))
+        self.ui_windowsettings.lineEdit_h_vert.setText(str(rpc_data.window_settings_data.get("vert", {}).get("h", "")))
+
 
     def ui_run_main(self):
         self.window.show()

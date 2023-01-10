@@ -24,6 +24,9 @@
   <ItemGroup>
     <None Include="7z.dll" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\resize_window.hpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

@@ -25,6 +25,7 @@ class RpcSaveData:
         self.dmm_browser_type = 0  # 0-edge 1-chrome 2-firefox
 
         self.more_settings_data = {}
+        self.window_settings_data = {"hori": {}, "vert": {}}
         self.read_config()
 
     def read_config(self):
@@ -48,6 +49,7 @@ class RpcSaveData:
                     self.dmm_cookie_cache = data["dmm_cookie_cache"] if "dmm_cookie_cache" in data else None
                     self.dmm_browser_type = data["dmm_browser_type"] if "dmm_browser_type" in data else 0
                     self.more_settings_data = data.get("more_settings_data", {})
+                    self.window_settings_data = data.get("window_settings", self.window_settings_data)
                 except BaseException as e:
                     # print(f"配置文件读取失败: {e}")
                     pass
@@ -77,7 +79,8 @@ class RpcSaveData:
                 "login_open_edge": self.login_open_edge,
                 "dmm_cookie_cache": self.dmm_cookie_cache,
                 "dmm_browser_type": self.dmm_browser_type,
-                "more_settings_data": self.more_settings_data
+                "more_settings_data": self.more_settings_data,
+                "window_settings": self.window_settings_data
                 }
 
     def write_config(self):

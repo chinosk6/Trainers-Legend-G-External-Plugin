@@ -11,6 +11,8 @@
     <file>7z.dll</file>
   </qresource>
   <qresource prefix="trans">
+    <file>window_settings.qm</file>
+    <file>ts_zh_tw/window_settings.qm</file>
     <file>more_ui.qm</file>
     <file>ts_zh_tw/more_ui_zh_tw.qm</file>
     <file>ts_zh_tw/main_ui_zh_tw.qm</file>

@@ -22,4 +22,9 @@
   <ItemGroup>
     <None Include="7z.dll" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\resize_window.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
