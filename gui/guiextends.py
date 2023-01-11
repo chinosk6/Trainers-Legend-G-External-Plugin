@@ -285,7 +285,7 @@ class UIChange(QWidget):
             self.ui.pushButton_fast_login.setEnabled(False)
 
     def load_rules(self):
-        reg = QtCore.QRegExp("[0-9]+$")
+        reg = QtCore.QRegExp("-?\\d+$")
         validator = QtGui.QRegExpValidator(self)
         validator.setRegExp(reg)
         self.ui_windowsettings.lineEdit_move_step.setValidator(validator)
@@ -1097,7 +1097,7 @@ del reboot.bat & exit"""
 
     def window_text_changed(self, pos_index: int):
         def _(new_value: str, *args):
-            if new_value == "":
+            if new_value == "" or new_value == "-":
                 return
             hori_is_checked = self.ui_windowsettings.checkBox_keep_ratio_hori.isChecked()
             vert_is_checked = self.ui_windowsettings.checkBox_keep_ratio_vert.isChecked()
