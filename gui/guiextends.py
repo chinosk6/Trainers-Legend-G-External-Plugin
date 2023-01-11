@@ -245,6 +245,8 @@ class UIChange(QWidget):
         self.checkBox_more_info = {}
         self.text_data_info = {}
         self.aspect_ratio_set = 16.0 / 9.0
+        self.last_window_item_text = None
+        self.window_settings_key_edit_cache = {}
 
     def load_args(self):
         args = sys.argv
@@ -345,9 +347,17 @@ class UIChange(QWidget):
         self.ui_windowsettings.pushButton_update_pos.clicked.connect(self.update_window_positoon)
         self.ui_windowsettings.lineEdit_w_hori.textChanged.connect(self.window_text_changed(0))
         self.ui_windowsettings.lineEdit_h_hori.textChanged.connect(self.window_text_changed(1))
+        self.ui_windowsettings.lineEdit_x_hori.textChanged.connect(self.window_text_changed(-1))
+        self.ui_windowsettings.lineEdit_y_hori.textChanged.connect(self.window_text_changed(-1))
         self.ui_windowsettings.lineEdit_w_vert.textChanged.connect(self.window_text_changed(2))
         self.ui_windowsettings.lineEdit_h_vert.textChanged.connect(self.window_text_changed(3))
+        self.ui_windowsettings.lineEdit_x_vert.textChanged.connect(self.window_text_changed(-1))
+        self.ui_windowsettings.lineEdit_y_vert.textChanged.connect(self.window_text_changed(-1))
         self.ui_windowsettings.pushButton_set_ratio.clicked.connect(self.set_ratio_clicked)
+        self.ui_windowsettings.comboBox_window_size_set.currentIndexChanged.connect(self.refresh_settings_group)
+        self.ui_windowsettings.comboBox_window_size_set.editTextChanged.connect(self.settings_group_name_changed)
+        self.ui_windowsettings.pushButton_add_set.clicked.connect(self.add_settings_item)
+        self.ui_windowsettings.pushButton_remove_set.clicked.connect(self.remove_settings_item)
 
         self.load_rules()
 
@@ -1018,14 +1028,15 @@ del reboot.bat & exit"""
             wc.resizeWindow(int(nx), int(ny), int(nw), int(nh))
             self.refresh_window_position()
 
-            if "hori" not in rpc_data.window_settings_data:
-                rpc_data.window_settings_data["hori"] = {}
-            if "vert" not in rpc_data.window_settings_data:
-                rpc_data.window_settings_data["vert"] = {}
-            rpc_data.window_settings_data[config_base]["x"] = int(nx)
-            rpc_data.window_settings_data[config_base]["y"] = int(ny)
-            rpc_data.window_settings_data[config_base]["w"] = int(nw)
-            rpc_data.window_settings_data[config_base]["h"] = int(nh)
+            # if "hori" not in rpc_data.window_settings_data:
+            #     rpc_data.window_settings_data["hori"] = {}
+            # if "vert" not in rpc_data.window_settings_data:
+            #     rpc_data.window_settings_data["vert"] = {}
+            # rpc_data.window_settings_data[config_base]["x"] = int(nx)
+            # rpc_data.window_settings_data[config_base]["y"] = int(ny)
+            # rpc_data.window_settings_data[config_base]["w"] = int(nw)
+            # rpc_data.window_settings_data[config_base]["h"] = int(nh)
+            self.refresh_settings_group()
             rpc_data.write_config()
         except BaseException as e:
             self.show_message_box("Exception Occurred", f"Exception Occurred in update_window_positoon:\n{e}",
@@ -1115,6 +1126,87 @@ del reboot.bat & exit"""
             self.show_message_box("Edit Config", "Please edit \"aspect_ratio_new\" in config.json "
                                                  "and restart the game.")
 
+    def switch_window_settings(self):
+        orig_text = self.last_window_item_text
+        orig_text = self.window_settings_key_edit_cache.get(orig_text, orig_text)
+        if orig_text is None:
+            return
+        if orig_text not in rpc_data.window_settings_groups:
+            # rpc_data.window_settings_groups[orig_text] = {"hori": {}, "vert": {}}
+            return
+        rpc_data.window_settings_groups[orig_text]["hori"]["x"] = self.ui_windowsettings.lineEdit_x_hori.text()
+        rpc_data.window_settings_groups[orig_text]["hori"]["y"] = self.ui_windowsettings.lineEdit_y_hori.text()
+        rpc_data.window_settings_groups[orig_text]["hori"]["w"] = self.ui_windowsettings.lineEdit_w_hori.text()
+        rpc_data.window_settings_groups[orig_text]["hori"]["h"] = self.ui_windowsettings.lineEdit_h_hori.text()
+        rpc_data.window_settings_groups[orig_text]["vert"]["x"] = self.ui_windowsettings.lineEdit_x_vert.text()
+        rpc_data.window_settings_groups[orig_text]["vert"]["y"] = self.ui_windowsettings.lineEdit_y_vert.text()
+        rpc_data.window_settings_groups[orig_text]["vert"]["w"] = self.ui_windowsettings.lineEdit_w_vert.text()
+        rpc_data.window_settings_groups[orig_text]["vert"]["h"] = self.ui_windowsettings.lineEdit_h_vert.text()
+        rpc_data.write_config()
+        self.window_settings_key_edit_cache.clear()
+
+    def refresh_settings_group(self, *args):
+        self.switch_window_settings()
+        group_ids = rpc_data.window_settings_groups.keys()
+        in_list = []
+        for n in range(self.ui_windowsettings.comboBox_window_size_set.count()):
+            in_list.append(self.ui_windowsettings.comboBox_window_size_set.itemText(n))
+        for i in group_ids:
+            if i not in in_list:
+                self.ui_windowsettings.comboBox_window_size_set.addItem(i)
+        dec = 0
+        for n in range(self.ui_windowsettings.comboBox_window_size_set.count()):
+            text = self.ui_windowsettings.comboBox_window_size_set.itemText(n - dec)
+            if text not in group_ids:
+                self.ui_windowsettings.comboBox_window_size_set.removeItem(n - dec)
+                dec += 1
+
+        current_index = self.ui_windowsettings.comboBox_window_size_set.currentIndex()
+        orig_text = self.ui_windowsettings.comboBox_window_size_set.itemText(current_index)
+        self.last_window_item_text = orig_text
+        print("orig_text", orig_text)
+        now_data = rpc_data.window_settings_groups.get(orig_text, {})
+        # if now_data:
+        self.ui_windowsettings.lineEdit_x_hori.setText(str(now_data.get("hori", {}).get("x", "")))
+        self.ui_windowsettings.lineEdit_y_hori.setText(str(now_data.get("hori", {}).get("y", "")))
+        self.ui_windowsettings.lineEdit_w_hori.setText(str(now_data.get("hori", {}).get("w", "")))
+        self.ui_windowsettings.lineEdit_h_hori.setText(str(now_data.get("hori", {}).get("h", "")))
+        self.ui_windowsettings.lineEdit_x_vert.setText(str(now_data.get("vert", {}).get("x", "")))
+        self.ui_windowsettings.lineEdit_y_vert.setText(str(now_data.get("vert", {}).get("y", "")))
+        self.ui_windowsettings.lineEdit_w_vert.setText(str(now_data.get("vert", {}).get("w", "")))
+        self.ui_windowsettings.lineEdit_h_vert.setText(str(now_data.get("vert", {}).get("h", "")))
+
+    def add_settings_item(self, *args):
+        in_list = []
+        for n in range(self.ui_windowsettings.comboBox_window_size_set.count()):
+            text = self.ui_windowsettings.comboBox_window_size_set.itemText(n)
+            in_list.append(text)
+        add_count = len(in_list)
+        new_name = f"newItem{add_count}"
+        while new_name in in_list:
+            add_count += 1
+            new_name = f"newItem{add_count}"
+        self.ui_windowsettings.comboBox_window_size_set.addItem(new_name)
+        rpc_data.window_settings_groups[new_name] = {"hori": {}, "vert": {}}
+        self.refresh_settings_group()
+        self.ui_windowsettings.comboBox_window_size_set.setCurrentIndex(len(in_list))
+
+    def remove_settings_item(self, *args):
+        current_index = self.ui_windowsettings.comboBox_window_size_set.currentIndex()
+        orig_text = self.ui_windowsettings.comboBox_window_size_set.itemText(current_index)
+        self.ui_windowsettings.comboBox_window_size_set.removeItem(current_index)
+        if orig_text in rpc_data.window_settings_groups:
+            rpc_data.window_settings_groups.pop(orig_text)
+        rpc_data.write_config()
+        self.refresh_settings_group()
+
+    def settings_group_name_changed(self, text: str, *args):
+        current_index = self.ui_windowsettings.comboBox_window_size_set.currentIndex()
+        orig_text = self.ui_windowsettings.comboBox_window_size_set.itemText(current_index)
+        self.window_settings_key_edit_cache[orig_text] = text
+        rpc_data.window_settings_groups = rpc_data.change_dict_key(rpc_data.window_settings_groups, orig_text, text)
+        self.ui_windowsettings.comboBox_window_size_set.setItemText(current_index, text)
+
     def window_settings_show(self, *args):
         if not import_cpp_success:
             self.ui_moresettings.pushButton_window_settings.setEnabled(False)
@@ -1134,15 +1226,7 @@ del reboot.bat & exit"""
                 self.ui_windowsettings.label_aspect_ratio.setText(f"{set_w} : {set_h}")
             else:
                 self.ui_windowsettings.label_aspect_ratio.setText("Invalid value")
-        self.ui_windowsettings.lineEdit_x_hori.setText(str(rpc_data.window_settings_data.get("hori", {}).get("x", "")))
-        self.ui_windowsettings.lineEdit_y_hori.setText(str(rpc_data.window_settings_data.get("hori", {}).get("y", "")))
-        self.ui_windowsettings.lineEdit_w_hori.setText(str(rpc_data.window_settings_data.get("hori", {}).get("w", "")))
-        self.ui_windowsettings.lineEdit_h_hori.setText(str(rpc_data.window_settings_data.get("hori", {}).get("h", "")))
-        self.ui_windowsettings.lineEdit_x_vert.setText(str(rpc_data.window_settings_data.get("vert", {}).get("x", "")))
-        self.ui_windowsettings.lineEdit_y_vert.setText(str(rpc_data.window_settings_data.get("vert", {}).get("y", "")))
-        self.ui_windowsettings.lineEdit_w_vert.setText(str(rpc_data.window_settings_data.get("vert", {}).get("w", "")))
-        self.ui_windowsettings.lineEdit_h_vert.setText(str(rpc_data.window_settings_data.get("vert", {}).get("h", "")))
-
+        self.refresh_settings_group()
 
     def ui_run_main(self):
         self.window.show()

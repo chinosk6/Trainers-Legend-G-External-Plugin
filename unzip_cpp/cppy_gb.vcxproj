@@ -91,8 +91,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Y7000\AppData\Local\Programs\Python\Python38\include;C:\Users\Y7000\Desktop\cppy_gobang\pybind11\include;./bit7z/include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Y7000\AppData\Local\Programs\Python\Python38\libs;./bit7z/include;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\python\python311\include;E:\python\pybind11-2.10.3\include;./bit7z/include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\python\python311\libs;./bit7z/include;$(LibraryPath)</LibraryPath>
     <TargetExt>.pyd</TargetExt>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
@@ -156,7 +156,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>python3.lib;python38.lib;bit7z64.lib;bit7z64_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python3.lib;python311.lib;bit7z64.lib;bit7z64_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>./bit7z/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

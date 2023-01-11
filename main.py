@@ -2,7 +2,7 @@ import gui
 import sys
 
 
-# sys.stdout = open("legend_g_plugin_log.log", "a", encoding="utf8")
+sys.stdout = open("legend_g_plugin_log.log", "a", encoding="utf8")
 
 
 if __name__ == '__main__':
