@@ -10,3 +10,4 @@ pyperclip
 flask
 msgpack
 pynput
+UnityPy~=1.9.21

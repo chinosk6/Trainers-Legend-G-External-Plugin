@@ -1,6 +1,10 @@
-from flask import Flask, request
+import json
+import time
+
+from flask import Flask, request, jsonify
 import threading
 from . import game_pack_modify as gmp
+from . import story_patch
 import requests
 
 
@@ -35,17 +39,42 @@ class UmaServer:
             else:
                 return str(data), 500
 
+    @staticmethod
+    def get_stories_text():
+        try:
+            return jsonify(story_patch.get_stories_text())
+        except BaseException as e:
+            return f"Error: {e}", 500
+
     def port_register(self):
         self.app.route("/tools/unlock_live_dress", methods=["POST"])(self.on_live_unlock)
+        self.app.route("/tools/get_stories_text", methods=["GET", "POST"])(self.get_stories_text)
 
-    def start_server(self, tlg_port: int, port=None):
+    def start_server(self, tlg_port: int, port=None, failed_callback=None):
         if port is not None:
             self.set_port(value=int(port))
-
         self.port_register()
-        threading.Thread(target=lambda: self.app.run(host="127.0.0.1", port=self.port)).start()
-        try:
-            requests.post(f"http://127.0.0.1:{tlg_port}/postmsg/serverstart", timeout=3)
-        except:
-            pass
+
+        def _():
+            try:
+                self.app.run(host="0.0.0.0", port=self.port)
+            except BaseException as e:
+                if failed_callback is not None:
+                    failed_callback(repr(e))
+        threading.Thread(target=_).start()
+
+        def _calltlg():
+            try:
+                time.sleep(3)
+                requests.post(f"http://127.0.0.1:{tlg_port}/postmsg/serverstart", timeout=3)
+            except:
+                pass
+
+        threading.Thread(target=_calltlg).start()
         return "ok"
+
+    @staticmethod
+    def try_stop_server():
+        func = request.environ.get('werkzeug.server.shutdown')
+        if func is not None:
+            func()

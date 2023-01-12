@@ -248,6 +248,9 @@ class UIChange(QWidget):
         self.last_window_item_text = None
         self.window_settings_key_edit_cache = {}
 
+    def server_load_onfailed(self, errinfo: str):
+        self.show_message_signal.emit("Start Server Error", errinfo)
+
     def load_args(self):
         args = sys.argv
         if len(args) > 1:
@@ -260,7 +263,7 @@ class UIChange(QWidget):
             if self.tlg_http_port is not None:
                 try:
                     _tlg_port = int(self.tlg_http_port)
-                    uma_server.start_server(_tlg_port, _tlg_port + 1)
+                    uma_server.start_server(_tlg_port, _tlg_port + 1, self.server_load_onfailed)
                 except BaseException as e:
                     self.show_message_box("Exception Occurred", f"Start server failed!\n{e}")
 

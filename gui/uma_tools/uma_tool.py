@@ -17,6 +17,9 @@ class UmaTools:
         self.conn = sqlite3.connect(meta_path, check_same_thread=False)
         self.master_conn = sqlite3.connect(master_path, check_same_thread=False)
 
+    def get_bundle_path_from_hash(self, bundle_hash: str):
+        return f"{self.base_path}/dat/{bundle_hash[:2]}/{bundle_hash}"
+
     def unlock_live_dress(self):
 
         def dict_factory(cursor, row):
@@ -119,3 +122,13 @@ class UmaTools:
             ret_ids += [(i, ids[0][-9:]) for ids in query]
         cursor.close()
         return ret_ids
+
+    def get_bundle_hashes_from_paths(self, paths: list, m_type="home"):
+        cursor = self.conn.cursor()
+        results = []
+        for i in paths:
+            query = cursor.execute("SELECT h FROM a WHERE n=? and m=?", [i, m_type]).fetchone()
+            if query:
+                results.append(query[0])
+        cursor.close()
+        return results
