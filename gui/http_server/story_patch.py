@@ -147,5 +147,5 @@ def get_stories_text():
             if uma_name not in uma_names:
                 uma_names.append([uma_name, name_local])
         ret += current_block_data
-    ret += uma_names
+    ret = uma_names + ret
     return ret
