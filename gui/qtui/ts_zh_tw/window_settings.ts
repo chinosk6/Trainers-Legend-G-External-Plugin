@@ -146,7 +146,7 @@
     <message>
         <location filename="window_settings.py" line="331"/>
         <source>Config</source>
-        <translation type="unfinished">配寘</translation>
+        <translation type="unfinished">配置</translation>
     </message>
     <message>
         <location filename="window_settings.py" line="332"/>
