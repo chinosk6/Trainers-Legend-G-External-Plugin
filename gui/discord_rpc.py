@@ -26,6 +26,7 @@ class RpcSaveData:
 
         self.more_settings_data = {}
         self.window_settings_groups = {"Default": {"hori": {}, "vert": {}}}
+        self.files_api_endpoint = ""
         self.read_config()
 
     def read_config(self):
@@ -50,6 +51,7 @@ class RpcSaveData:
                     self.dmm_browser_type = data["dmm_browser_type"] if "dmm_browser_type" in data else 0
                     self.more_settings_data = data.get("more_settings_data", {})
                     self.window_settings_groups = data.get("window_settings_groups", self.window_settings_groups)
+                    self.files_api_endpoint = data.get("files_api_endpoint", "")
                 except BaseException as e:
                     # print(f"配置文件读取失败: {e}")
                     pass
@@ -80,7 +82,8 @@ class RpcSaveData:
                 "dmm_cookie_cache": self.dmm_cookie_cache,
                 "dmm_browser_type": self.dmm_browser_type,
                 "more_settings_data": self.more_settings_data,
-                "window_settings_groups": self.window_settings_groups
+                "window_settings_groups": self.window_settings_groups,
+                "files_api_endpoint": self.files_api_endpoint
                 }
 
     def write_config(self):

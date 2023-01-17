@@ -1,10 +1,11 @@
-import threading
+from threading import Thread
 import time
 import requests
+from hashlib import md5
 from .qtui.ui_import import MainUI, ConfigUI, RPCUI, MoreSettingsUI, WindowSettingsUI
 from .qtui import msrc_rc  # 不能删
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtWidgets import QDialog, QApplication, QMainWindow, QWidget
+from PyQt5.QtWidgets import QDialog, QApplication, QMainWindow, QWidget, QInputDialog
 import sys
 from .qt_jsonschema_form import WidgetBuilder
 import json
@@ -132,6 +133,8 @@ class UIChange(QWidget):
     dmm_button_login_cache_signal = QtCore.pyqtSignal(str)
     update_btn_enable = QtCore.pyqtSignal(bool)
     kb_event_pass = QtCore.pyqtSignal()
+    set_files_update_btn_signal = QtCore.pyqtSignal(bool)
+    start_update_local_files_signal = QtCore.pyqtSignal(str, dict, bool)
 
     def __init__(self):
         self.app = QApplication(sys.argv)
@@ -187,7 +190,7 @@ class UIChange(QWidget):
                     self.more_settings_i18n_data = json.load(f)
 
         super(UIChange, self).__init__()
-        self.uma_path = "."
+        self.uma_path = os.path.abspath(".").replace("\\", "/")
         self.cache_config_changes = None
         self.uma_load_cmd = None
 
@@ -361,6 +364,10 @@ class UIChange(QWidget):
         self.ui_windowsettings.comboBox_window_size_set.editTextChanged.connect(self.settings_group_name_changed)
         self.ui_windowsettings.pushButton_add_set.clicked.connect(self.add_settings_item)
         self.ui_windowsettings.pushButton_remove_set.clicked.connect(self.remove_settings_item)
+        self.ui.pushButton_set_api.clicked.connect(self.change_files_api)
+        self.ui.pushButton_update_files.clicked.connect(self.check_files_update)
+        self.set_files_update_btn_signal.connect(lambda x: self.ui.pushButton_update_files.setEnabled(x))
+        self.start_update_local_files_signal.connect(self.start_update_local_file)
 
         self.load_rules()
 
@@ -533,7 +540,7 @@ del reboot.bat & exit"""
                 self.rpc_change_connect_btn_text_signal.emit("true")
                 self.ui_rpc.pushButton_connect.setText("Disconnect Discord")
 
-            threading.Thread(target=_inner).start()
+            Thread(target=_inner).start()
 
         elif state == "closed":
             self.ui_rpc.pushButton_connect.setText("Connect To Discord")
@@ -553,7 +560,7 @@ del reboot.bat & exit"""
             self.rpc_change_connect_btn_text_signal.emit("true")
             self._rpc_btnc_running = False
 
-        threading.Thread(target=_inner).start()
+        Thread(target=_inner).start()
 
     def change_rpc_connect_btn_string(self, s: str):
         if s == "false":
@@ -611,7 +618,8 @@ del reboot.bat & exit"""
                 self.latest_version_label_signal.emit(latest_ver_label_fmt.format("Unknown"))
                 return
 
-        threading.Thread(target=_).start()
+        Thread(target=_).start()
+        self.check_files_update(show_msgbox=False)
 
     def change_update_button_text(self, s: str):
         if s == "false":
@@ -715,9 +723,9 @@ del reboot.bat & exit"""
                                                  "Residual update file detected. It may be an error occurred"
                                                  " in your last update. Would you like to try unzip again?")
                 if useCache == QtWidgets.QMessageBox.Yes:
-                    threading.Thread(target=unzip_from_cache).start()
+                    Thread(target=unzip_from_cache).start()
                     return
-            threading.Thread(target=download_file).start()
+            Thread(target=download_file).start()
 
     def update_finish(self, *args):
         resu = self.show_message_box("更新完成", "更新完成, 是否立即启动游戏?")
@@ -742,7 +750,7 @@ del reboot.bat & exit"""
                     except BaseException as e:
                         self.show_message_signal.emit("Reload Failed", repr(e))
 
-                threading.Thread(target=_).start()
+                Thread(target=_).start()
 
         else:
             self.show_message_box("Reload Config", "Please Restart the Game.", QtWidgets.QMessageBox.Yes)
@@ -916,7 +924,7 @@ del reboot.bat & exit"""
             except BaseException as e:
                 self.show_message_signal.emit("Set Trans Failed", repr(e))
 
-        threading.Thread(target=_).start()
+        Thread(target=_).start()
 
     def unlock_cloth(self, *argsm):
         try:
@@ -1230,6 +1238,131 @@ del reboot.bat & exit"""
             else:
                 self.ui_windowsettings.label_aspect_ratio.setText("Invalid value")
         self.refresh_settings_group()
+
+    def change_files_api(self):
+        text, ok = QInputDialog.getText(self.window, "Change API", "API Endpoint")
+        if ok:
+            rpc_data.files_api_endpoint = text.strip()
+            rpc_data.write_config()
+
+    def check_files_update(self, *args, show_msgbox=True):
+        self.uma_path = self.uma_path.replace("\\", "/")
+        api_endpoint = rpc_data.files_api_endpoint.strip()
+        if not api_endpoint:
+            if local_language in sChinese_lang_id:
+                api_endpoint = "https://uma.bbq.chinosk6.cn"
+        if not api_endpoint:
+            if show_msgbox:
+                self.show_message_box("Error", "Please set an API Endpoint.")
+            return
+
+        if not os.path.isfile(f"{self.uma_path}/umamusume.exe"):
+            if show_msgbox:
+                self.show_message_box("Error", "Target not found.")
+            return
+
+        def _():
+            self.set_files_update_btn_signal.emit(False)
+            try:
+                file_root = f"{self.uma_path}/localized_data"
+
+                send_bdy = {}
+                for root, dirs, files in os.walk(file_root):
+                    for f in files:
+                        full_name = os.path.normpath(os.path.join(root, f)).replace("\\", "/")
+                        relative_path = full_name.replace(self.uma_path, "")
+                        send_bdy[relative_path] = self.get_file_md5(full_name, True)
+
+                headers = {'Content-Type': 'application/json'}
+                data = json.loads(
+                    requests.request("POST", f"{api_endpoint}/file/get_list",
+                                     data=json.dumps(send_bdy), headers=headers).text)
+                if data.get("success", False):
+                    self.start_update_local_files_signal.emit(api_endpoint, data, show_msgbox)
+                else:
+                    if show_msgbox:
+                        self.show_message_signal.emit("Failed", "Update Local Files Failed")
+            except BaseException as e:
+                if show_msgbox:
+                    self.show_message_signal.emit("Update Local Files Failed", repr(e))
+            finally:
+                self.set_files_update_btn_signal.emit(True)
+
+        Thread(target=_).start()
+
+    def start_update_local_file(self, api_endpoint, data: dict, show_msgbox=True):
+        upd_file_count = len(data["data"])
+        if upd_file_count <= 0:
+            if show_msgbox:
+                self.show_message_box("Tip", self.get_ts("All files are up to date."))
+            return
+
+        res = self.show_message_box("File Update", self.get_ts("File update detected, do you want to update it now?") +
+                                    f"\nTotal {upd_file_count} files.")
+        if res != QtWidgets.QMessageBox.Yes:
+            return
+
+        if upd_file_count >= 5000:
+            self.show_message_box("Error", self.get_ts("Too many files, please update directly."))
+            return
+
+        def _():
+            self.set_files_update_btn_signal.emit(False)
+            try:
+                count = 0
+                for fname in data["data"]:
+                    file_resp = requests.get(f"{api_endpoint}/file/get", params={
+                        "filename": fname,
+                        "hash": data["data"][fname]
+                    })
+                    if file_resp.status_code == 200:
+                        write_name = f"{self.uma_path}{fname}"
+                        fpath = os.path.split(write_name)[0]
+                        if not os.path.isdir(fpath):
+                            os.makedirs(fpath)
+                        with open(write_name, "wb") as f:
+                            f.write(file_resp.content)
+                            count += 1
+                self.show_message_signal.emit("Update Finished", f"Updated {count} files.")
+            except BaseException as e:
+                self.show_message_signal.emit("Update Files Failed", repr(e))
+            finally:
+                self.set_files_update_btn_signal.emit(True)
+        Thread(target=_).start()
+
+    @staticmethod
+    def get_file_md5(file_name, remove_starts_zero=False):
+        try:
+            md = md5()
+            with open(file_name, "rb") as f:
+                block = f.read(1024)
+                while block:
+                    md.update(block)
+                    block = f.read(1024)
+            ret = md.hexdigest()
+            if remove_starts_zero:
+                while ret[0] == "0":
+                    ret = ret[1:]
+            return ret
+        except BaseException:
+            return None
+
+    @staticmethod
+    def get_ts(text: str):
+        dict_scn = {
+            "All files are up to date.": "所有文件都是最新的",
+            "File update detected, do you want to update it now?": "检测到有文件更新，是否立刻更新？",
+            "Too many files, please update directly.": "文件过多，请直接进行完整更新"
+        }
+        dict_tcn = {
+            "All files are up to date.": "所有檔案都是最新的",
+            "File update detected, do you want to update it now?": "檢測到有檔案更新，是否立刻更新？",
+            "Too many files, please update directly.": "檔案過多，請直接進行完整更新"
+        }
+        if local_language in sChinese_lang_id:
+            return dict_scn.get(text, text)
+        if local_language in tChinese_lang_id:
+            return dict_tcn.get(text, text)
 
     def ui_run_main(self):
         self.window.show()

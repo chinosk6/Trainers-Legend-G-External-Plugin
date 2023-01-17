@@ -68,5 +68,15 @@
         <source>Reload Config and Textdb</source>
         <translation type="unfinished">重新載入配置和文本</translation>
     </message>
+    <message>
+        <location filename="main_ui.py" line="130"/>
+        <source>Change API</source>
+        <translation type="unfinished">更改API</translation>
+    </message>
+    <message>
+        <location filename="main_ui.py" line="131"/>
+        <source>Check Update</source>
+        <translation type="unfinished">檢查更新</translation>
+    </message>
 </context>
 </TS>
