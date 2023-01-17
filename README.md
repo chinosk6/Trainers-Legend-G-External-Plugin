@@ -9,6 +9,17 @@
 - Discord Rich Presence, 向您的列表展示游戏状态
 - 插件自动更新
 - 快速重启游戏, 无需DMM
+- 热重载配置 (部分配置需要重启游戏)
+- 开关翻译项目
+- 调整游戏窗口位置/比例
+- ......
+
+
+
+## 文件更新功能
+
+- 插件发行版更新基于 GitHub API, 国内使用了反代服务器优化速度
+- 翻译文件热更新后端项目见: **[Trainers-Legend-Barbecue](https://github.com/chinosk6/Trainers-Legend-Barbecue)**
 
 
 
