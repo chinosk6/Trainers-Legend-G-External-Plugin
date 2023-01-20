@@ -1251,6 +1251,8 @@ del reboot.bat & exit"""
         if not api_endpoint:
             if local_language in sChinese_lang_id:
                 api_endpoint = "https://uma.bbq.chinosk6.cn"
+            elif local_language in tChinese_lang_id:
+                api_endpoint = "https://update-tlg.snowmaple.top"
         if not api_endpoint:
             if show_msgbox:
                 self.show_message_box("Error", "Please set an API Endpoint.")
@@ -1297,8 +1299,16 @@ del reboot.bat & exit"""
                 self.show_message_box("Tip", self.get_ts("All files are up to date."))
             return
 
+        user_names = set({})
+        desc = set({})
+        for fname in data["data"]:
+            user_names.add(data["data"][fname]["user"])
+            desc.add(data["data"][fname]["desc"])
+        print_desc = "\n".join(desc)
+        print_users = ", ".join(user_names)
         res = self.show_message_box("File Update", self.get_ts("File update detected, do you want to update it now?") +
-                                    f"\nTotal {upd_file_count} files.")
+                                    f"\nTotal {upd_file_count} files.\n\n"
+                                    f"{print_desc}\n\nCommitters:\n{print_users}")
         if res != QtWidgets.QMessageBox.Yes:
             return
 
@@ -1311,9 +1321,10 @@ del reboot.bat & exit"""
             try:
                 count = 0
                 for fname in data["data"]:
+                    file_hash = data["data"][fname]["hash"]
                     file_resp = requests.get(f"{api_endpoint}/file/get", params={
                         "filename": fname,
-                        "hash": data["data"][fname]
+                        "hash": file_hash
                     })
                     if file_resp.status_code == 200:
                         write_name = f"{self.uma_path}{fname}"
@@ -1323,6 +1334,12 @@ del reboot.bat & exit"""
                         with open(write_name, "wb") as f:
                             f.write(file_resp.content)
                             count += 1
+                try:
+                    requests.post(f"http://127.0.0.1:{self.tlg_http_port}/sets",
+                                  headers={'Content-Type': 'application/json'},
+                                  data=json.dumps({"type": "reload_all"}), timeout=3)
+                except:
+                    pass
                 self.show_message_signal.emit("Update Finished", f"Updated {count} files.")
             except BaseException as e:
                 self.show_message_signal.emit("Update Files Failed", repr(e))
@@ -1363,6 +1380,7 @@ del reboot.bat & exit"""
             return dict_scn.get(text, text)
         if local_language in tChinese_lang_id:
             return dict_tcn.get(text, text)
+        return text
 
     def ui_run_main(self):
         self.window.show()
