@@ -82,8 +82,9 @@ class Qm2(QMainWindow):
         #     a0.ignore()
         #     return
 
-        req = QtWidgets.QMessageBox.information(self, "Exit", "Are you sure?",
-                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        # req = QtWidgets.QMessageBox.information(self, "Exit", "Are you sure?",
+        #                                         QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        req = QtWidgets.QMessageBox.Yes
         if req != QtWidgets.QMessageBox.Yes:
             a0.ignore()
         else:

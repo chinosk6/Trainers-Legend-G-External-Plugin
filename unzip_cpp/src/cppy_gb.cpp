@@ -18,12 +18,25 @@ public:
 	}
     std::string wuhu;
 
+    static std::wstring to_wide_string(const std::string& input)
+    {
+        std::string strLocale = setlocale(LC_ALL, "");
+        const char* chSrc = input.c_str();
+        size_t nDestSize = mbstowcs(NULL, chSrc, 0) + 1;
+        wchar_t* wchDest = new wchar_t[nDestSize];
+        wmemset(wchDest, 0, nDestSize);
+        mbstowcs(wchDest, chSrc, nDestSize);
+        std::wstring wstrResult = wchDest;
+        delete[] wchDest;
+        setlocale(LC_ALL, strLocale.c_str());
+        return wstrResult;
+    }
+
     static std::string decompress_file(std::string zipname, std::string outputPath)
     {
         try {
-
-            std::wstring filename{ zipname.begin(), zipname.end() };
-            std::wstring outPath{ outputPath.begin(), outputPath.end() };
+            std::wstring filename = to_wide_string(zipname);
+            std::wstring outPath = to_wide_string(outputPath);
 
             Bit7zLibrary lib{ L"7z.dll" };
             BitExtractor extractor{ lib, BitFormat::Zip };

@@ -82,7 +82,6 @@ def get_stories_japanese_data():
             try:
                 if obj.type.name == "MonoBehaviour":
                     script_name = obj.read().m_Script.read().name
-                    obj.read_typetree()
                     if script_name == "StoryTimelineTextClipData":
                         mono_tree = obj.read_typetree()
                         text = mono_tree.get("Text", "")
