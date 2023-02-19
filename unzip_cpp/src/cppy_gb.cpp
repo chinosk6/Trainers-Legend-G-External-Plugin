@@ -18,18 +18,23 @@ public:
 	}
     std::string wuhu;
 
-    static std::wstring to_wide_string(const std::string& input)
+    static std::wstring to_wide_string(const std::string& str)
     {
-        std::string strLocale = setlocale(LC_ALL, "");
-        const char* chSrc = input.c_str();
-        size_t nDestSize = mbstowcs(NULL, chSrc, 0) + 1;
-        wchar_t* wchDest = new wchar_t[nDestSize];
-        wmemset(wchDest, 0, nDestSize);
-        mbstowcs(wchDest, chSrc, nDestSize);
-        std::wstring wstrResult = wchDest;
-        delete[] wchDest;
-        setlocale(LC_ALL, strLocale.c_str());
-        return wstrResult;
+        if (str.empty())
+            return wstring();
+
+        size_t charsNeeded = ::MultiByteToWideChar(CP_UTF8, 0,
+            str.data(), (int)str.size(), NULL, 0);
+        if (charsNeeded == 0)
+            throw runtime_error("Failed converting UTF-8 string to UTF-16");
+
+        vector<wchar_t> buffer(charsNeeded);
+        int charsConverted = ::MultiByteToWideChar(CP_UTF8, 0,
+            str.data(), (int)str.size(), &buffer[0], buffer.size());
+        if (charsConverted == 0)
+            throw runtime_error("Failed converting UTF-8 string to UTF-16");
+
+        return wstring(&buffer[0], charsConverted);
     }
 
     static std::string decompress_file(std::string zipname, std::string outputPath)
