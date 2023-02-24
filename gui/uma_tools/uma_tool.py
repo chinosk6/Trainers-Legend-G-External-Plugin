@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import time
 
 
 class UmaTools:
@@ -60,7 +61,7 @@ class UmaTools:
                 dress['head_sub_id'] = 0
             self.master_conn.row_factory = dict_factory
             cursor = self.master_conn.cursor()
-            cursor.execute("INSERT INTO dress_data VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            cursor.execute("INSERT INTO dress_data VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                            [dress['id'], dress['condition_type'], dress['have_mini'], dress['general_purpose'],
                             dress['costume_type'], dress['chara_id'], dress['use_gender'], dress['body_shape'],
                             dress['body_type'], dress['body_type_sub'], dress['body_setting'], dress['use_race'],
@@ -68,7 +69,8 @@ class UmaTools:
                             dress['is_wet'], dress['is_dirt'], dress['head_sub_id'], dress['use_season'],
                             dress['dress_color_main'], dress['dress_color_sub'], dress['color_num'],
                             dress['disp_order'],
-                            dress['tail_model_id'], dress['tail_model_sub_id'], dress['start_time'], dress['end_time']])
+                            dress['tail_model_id'], dress['tail_model_sub_id'], dress['mini_mayu_shader_type'],
+                            dress['start_time'], dress['end_time']])
             self.master_conn.commit()
             cursor.close()
 
@@ -87,6 +89,13 @@ class UmaTools:
                     create_data(dress, unique)
                 except:
                     pass
+
+        cursor_m = self.master_conn.cursor()
+        now_time = int(time.time())
+        cursor_m.execute("UPDATE chara_data SET start_date=? WHERE start_date>?", [1000000000, now_time])
+        cursor_m.execute("UPDATE dress_data SET body_type=230 WHERE id>100000 AND body_type=100")
+        self.master_conn.commit()
+
         unlock_data()
 
 
@@ -95,12 +104,16 @@ class UmaTools:
         query = cursor.execute("SELECT n FROM a WHERE n like '%pfb_bdy_____90'").fetchall()
         uma_ids = [int(f"90{i[0][-7:-3]}") for i in query]
         cursor.close()
+
+        cursor = self.master_conn.cursor()
+        query = cursor.execute("SELECT id FROM dress_data WHERE id>100000").fetchall()
+        cursor.close()
+        for i in query:
+            cloth_id = int(i[0])
+            if cloth_id not in uma_ids:
+                uma_ids.append(cloth_id)
         return uma_ids
-        # cursor = self.master_conn.cursor()
-        # query = cursor.execute("SELECT id FROM dress_data").fetchall()
-        # uma_ids = [int(i[0]) for i in query]
-        # cursor.close()
-        # return uma_ids
+
 
     def get_uma_card_ids(self):
         cursor = self.master_conn.cursor()
@@ -110,6 +123,12 @@ class UmaTools:
         for i in query:
             ret.append(int(i[0]))
             card_ids.append(int(i[1]))
+
+        query = cursor.execute("SELECT id FROM chara_data").fetchall()
+        for i in query:
+            chara_id = int(i[0])
+            if chara_id not in card_ids:
+                card_ids.append(chara_id)
         cursor.close()
         return ret, list(set(card_ids))
 

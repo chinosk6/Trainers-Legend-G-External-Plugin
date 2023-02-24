@@ -67,7 +67,7 @@ def unlock_live_dress(datain: bytes, is_unlock_stories=False):
                         continue
                     data["data"]["card_list"].append({
                         "null": 1,
-                        "card_id": i,
+                        "card_id": i,  # 服装ID
                         "rarity": 3,
                         "talent_level": 3,
                         "create_time": "2022-11-15 17:11:32",
@@ -78,7 +78,7 @@ def unlock_live_dress(datain: bytes, is_unlock_stories=False):
                     if i in had_chara_ids:
                         continue
                     data["data"]["chara_list"].append({
-                        "chara_id": i,
+                        "chara_id": i,  # 4位ID
                         "training_num": 1,
                         "love_point": 10000,
                         "fan": 1,
