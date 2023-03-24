@@ -148,3 +148,55 @@ def get_stories_text():
         ret += current_block_data
     ret = uma_names + ret
     return ret
+
+def restore_all_live_pos_hookable():
+    uma_tool = uma_tools.UmaTools()
+    music_ids = uma_tool.get_all_live_ids()
+    paths = []
+    for i in music_ids:
+        paths.append(f"cutt/cutt_son{i}/son{i}_camera")
+    hashes = uma_tool.get_bundle_hashes_from_paths(paths, m_type="_3d_cutt")
+    changed_count = 0
+    for i in hashes:
+        fname = uma_tool.get_bundle_path_from_hash(i)
+        backup_name = f"{fname}_t_backup"
+        if os.path.isfile(backup_name):
+            with open(backup_name, "rb") as fw:
+                with open(fname, "wb") as fr:
+                    fr.write(fw.read())
+            os.remove(backup_name)
+            changed_count += 1
+    return changed_count
+
+def make_all_live_pos_hookable():
+    uma_tool = uma_tools.UmaTools()
+    music_ids = uma_tool.get_all_live_ids()
+    paths = []
+    for i in music_ids:
+        paths.append(f"cutt/cutt_son{i}/son{i}_camera")
+    hashes = uma_tool.get_bundle_hashes_from_paths(paths, m_type="_3d_cutt")
+    changed_count = 0
+    for i in hashes:
+        fname = uma_tool.get_bundle_path_from_hash(i)
+        backup_name = f"{fname}_t_backup"
+        if not os.path.isfile(backup_name):
+            with open(backup_name, "wb") as fw:
+                with open(fname, "rb") as fr:
+                    fw.write(fr.read())
+
+        env = UnityPy.load(fname)
+        for obj in env.objects:
+            if obj.type.name == "MonoBehaviour":
+                if not obj.serialized_type.nodes:
+                    continue
+                data = obj.read_typetree()
+                if "cameraPosKeys" not in data:
+                    continue
+                changed_count += 1
+                for n in range(len(data["cameraPosKeys"]["thisList"])):
+                    data["cameraPosKeys"]["thisList"][n]["setType"] = 1
+                obj.save_typetree(data)
+
+        with open(fname, "wb") as f:
+            f.write(env.file.save())
+    return changed_count

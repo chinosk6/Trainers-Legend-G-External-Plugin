@@ -37,7 +37,7 @@
             <x>0</x>
             <y>0</y>
             <width>362</width>
-            <height>232</height>
+            <height>175</height>
            </rect>
           </property>
          </widget>
@@ -74,6 +74,19 @@
          </property>
          <property name="text">
           <string>Window Settings</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_live_pos_hook">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Make Live All Character Position Hookable</string>
          </property>
         </widget>
        </item>

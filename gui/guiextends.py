@@ -135,6 +135,7 @@ class UIChange(QWidget):
     update_btn_enable = QtCore.pyqtSignal(bool)
     kb_event_pass = QtCore.pyqtSignal()
     set_files_update_btn_signal = QtCore.pyqtSignal(bool)
+    set_live_hook_btn_signal = QtCore.pyqtSignal(bool)
     start_update_local_files_signal = QtCore.pyqtSignal(str, dict, bool)
 
     def __init__(self):
@@ -369,6 +370,8 @@ class UIChange(QWidget):
         self.ui.pushButton_update_files.clicked.connect(self.check_files_update)
         self.set_files_update_btn_signal.connect(lambda x: self.ui.pushButton_update_files.setEnabled(x))
         self.start_update_local_files_signal.connect(self.start_update_local_file)
+        self.ui_moresettings.pushButton_live_pos_hook.clicked.connect(self.all_live_pos_hook_onclick)
+        self.set_live_hook_btn_signal.connect(lambda x: self.ui_moresettings.pushButton_live_pos_hook.setEnabled(x))
 
         self.load_rules()
 
@@ -1129,6 +1132,45 @@ del reboot.bat & exit"""
                     if self.ui_windowsettings.lineEdit_h_vert.hasFocus():
                         self.ui_windowsettings.lineEdit_w_vert.setText(str(int(int(new_value) / self.aspect_ratio_set)))
         return _
+
+    def all_live_pos_hook_onclick(self):
+        def _():
+            try:
+                self.set_live_hook_btn_signal.emit(False)
+                count = http_server.story_patch.make_all_live_pos_hookable()
+                self.show_message_signal.emit("success", f"Changed {count} files.")
+            except BaseException as e:
+                self.show_message_signal.emit("Exception Occurred", repr(e))
+            finally:
+                self.set_live_hook_btn_signal.emit(True)
+
+        def _rst():
+            try:
+                self.set_live_hook_btn_signal.emit(False)
+                count = http_server.story_patch.restore_all_live_pos_hookable()
+                self.show_message_signal.emit("success", f"Restored {count} files.")
+            except BaseException as e:
+                self.show_message_signal.emit("Exception Occurred", repr(e))
+            finally:
+                self.set_live_hook_btn_signal.emit(True)
+
+        msgbox = QtWidgets.QMessageBox(self.window)
+        yesButton = QtWidgets.QPushButton("Yes")
+        restoreButton = QtWidgets.QPushButton("Restore")
+        noButton = QtWidgets.QPushButton("No")
+        msgbox.setText("Are you sure?\n"
+                       "It will take a little time.")
+        msgbox.setWindowTitle("Edit AssetBundle")
+        msgbox.addButton(yesButton, QtWidgets.QMessageBox.ResetRole)
+        msgbox.addButton(restoreButton, QtWidgets.QMessageBox.YesRole)
+        msgbox.addButton(noButton, QtWidgets.QMessageBox.NoRole)
+
+        ret = msgbox.exec_()
+        if (ret == 0):
+            Thread(target=_).start()
+        elif (ret == 1):
+            Thread(target=_rst).start()
+
 
     def set_ratio_clicked(self, *args):
         if self.ui.pushButton_config_settings.isEnabled():

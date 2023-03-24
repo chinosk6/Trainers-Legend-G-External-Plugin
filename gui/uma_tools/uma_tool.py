@@ -151,3 +151,9 @@ class UmaTools:
                 results.append(query[0])
         cursor.close()
         return results
+
+    def get_all_live_ids(self):
+        cursor = self.master_conn.cursor()
+        query = cursor.execute("SELECT music_id FROM live_data WHERE has_live=1").fetchall()
+        cursor.close()
+        return [i[0] for i in query]

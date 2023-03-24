@@ -43,5 +43,10 @@
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="more_ui.py" line="114"/>
+        <source>Make Live All Character Position Hookable</source>
+        <translation type="unfinished">使所有 LIVE 的角色位置可被 Hook</translation>
+    </message>
 </context>
 </TS>
