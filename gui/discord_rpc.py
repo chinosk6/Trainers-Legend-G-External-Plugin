@@ -87,7 +87,17 @@ class RpcSaveData:
                 }
 
     def write_config(self):
+        if os.path.isfile("epconf.json"):
+            with open("epconf.json", "r", encoding="utf8") as f:
+                data_before = json.load(f)
+            readed_notices = data_before.get("more_settings_data", {}).get("readedNotices", [])
+        else:
+            readed_notices = []
+
         data = self.get_data_dict()
+        if not isinstance(data["more_settings_data"], dict):
+            data["more_settings_data"] = {}
+        data["more_settings_data"]["readedNotices"] = readed_notices
         with open("epconf.json", "w", encoding="utf8") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
 

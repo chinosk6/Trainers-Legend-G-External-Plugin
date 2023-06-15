@@ -292,6 +292,8 @@ class UIChange(QWidget):
         else:
             self.ui.pushButton_fast_login.setEnabled(False)
 
+        self.check_uma_window_resize()
+
     def load_rules(self):
         reg = QtCore.QRegExp("-?\\d+$")
         validator = QtGui.QRegExpValidator(self)
@@ -1198,6 +1200,33 @@ del reboot.bat & exit"""
         rpc_data.write_config()
         self.window_settings_key_edit_cache.clear()
 
+    def check_uma_window_resize(self):
+        try:
+            for k in rpc_data.window_settings_groups:
+                if k.lower() == "onload":
+                    now_pos = self.get_window_now_pos()
+                    if now_pos is None:
+                        print("check_uma_window_resize - Can't find target window.")
+                        return
+
+                    with open(os.path.join(self.uma_path, "config.json"), "r", encoding="utf8") as f:
+                        data = json.load(f)
+                        force_landscape = data.get("aspect_ratio_new", {}).get("forceLandscape", False)
+                    direction_key = "hori" if force_landscape else "vert"
+
+                    nx = rpc_data.window_settings_groups[k].get(direction_key, {}).get("x", "")
+                    ny = rpc_data.window_settings_groups[k].get(direction_key, {}).get("y", "")
+                    nw = rpc_data.window_settings_groups[k].get(direction_key, {}).get("w", "")
+                    nh = rpc_data.window_settings_groups[k].get(direction_key, {}).get("h", "")
+
+                    if not all([nx, ny, nw, nh]):
+                        print(f"check_uma_window_resize - Invalid numbers: {[nx, ny, nw, nh]}")
+                        return
+                    wc = self.get_window_controller()
+                    wc.resizeWindow(int(nx), int(ny), int(nw), int(nh))
+        except BaseException as e:
+            print(f"check_uma_window_resize - Error: {e}")
+
     def refresh_settings_group(self, *args):
         self.switch_window_settings()
         group_ids = rpc_data.window_settings_groups.keys()
@@ -1217,7 +1246,7 @@ del reboot.bat & exit"""
         current_index = self.ui_windowsettings.comboBox_window_size_set.currentIndex()
         orig_text = self.ui_windowsettings.comboBox_window_size_set.itemText(current_index)
         self.last_window_item_text = orig_text
-        print("orig_text", orig_text)
+        # print("orig_text", orig_text)
         now_data = rpc_data.window_settings_groups.get(orig_text, {})
         # if now_data:
         self.ui_windowsettings.lineEdit_x_hori.setText(str(now_data.get("hori", {}).get("x", "")))
