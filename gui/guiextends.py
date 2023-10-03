@@ -385,6 +385,7 @@ class UIChange(QWidget):
 
     def main_on_quit(self):
         self.mti.quit()
+        http_server.UmaServer.try_stop_server()
 
     def init_gui(self):
         self.get_update_version()

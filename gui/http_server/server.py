@@ -57,7 +57,7 @@ class UmaServer:
 
         def _():
             try:
-                self.app.run(host="0.0.0.0", port=self.port)
+                self.app.run(host="127.0.0.1", port=self.port)
             except BaseException as e:
                 if failed_callback is not None:
                     failed_callback(repr(e))
