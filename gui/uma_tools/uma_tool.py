@@ -1,12 +1,32 @@
 import os
 import sqlite3
 import time
+import json
+from typing import Optional
 
 
 class UmaTools:
     def __init__(self):
+        self.base_path = ""
+        self.conn: Optional[sqlite3.Connection] = None
+        self.master_conn: Optional[sqlite3.Connection] = None
+        self.init_conn()
+
+    def init_conn(self):
         profile_path = os.environ.get("UserProfile")
         self.base_path = f"{profile_path}/AppData/LocalLow/Cygames/umamusume"
+
+        try:
+            uma_path = os.path.abspath(".").replace("\\", "/")
+            if os.path.isfile(f"{uma_path}/config.json"):
+                with open(f"{uma_path}/config.json", "r", encoding="utf8") as f:
+                    orig_data = json.load(f)
+                if "customPath" in orig_data:
+                    if orig_data["customPath"].get("enableCustomPersistentDataPath", False):
+                        self.base_path = orig_data["customPath"].get("customPersistentDataPath", "")
+        except BaseException as e:
+            raise ValueError(f"Load config failed.\n{e}")
+
         meta_path = f"{self.base_path}/meta"
         master_path = f"{self.base_path}/master/master.mdb"
 
@@ -14,6 +34,11 @@ class UmaTools:
             raise FileNotFoundError(f"meta database not found in {meta_path}")
         if not os.path.isfile(master_path):
             raise FileNotFoundError(f"master database not found in {master_path}")
+
+        if self.conn is not None:
+            self.conn.close()
+        if self.master_conn is not None:
+            self.master_conn.close()
 
         self.conn = sqlite3.connect(meta_path, check_same_thread=False)
         self.master_conn = sqlite3.connect(master_path, check_same_thread=False)
