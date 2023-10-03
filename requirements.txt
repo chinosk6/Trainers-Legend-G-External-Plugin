@@ -8,6 +8,7 @@ getmac
 wmi
 pyperclip
 flask
+waitress~=2.1.1
 msgpack
 pynput
 UnityPy~=1.9.21
