@@ -1,4 +1,5 @@
 # Trainers-Legend-G-Plugin
+日本語のREADMEは[こちら](/README_JA.md)
 - [Trainers-Legend-G](https://github.com/MinamiChiwa/Trainers-Legend-G)的外部插件, 用于增强插件本体功能
 
 
