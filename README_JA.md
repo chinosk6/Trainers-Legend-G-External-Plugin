@@ -44,7 +44,7 @@ python main.py
 
 ## pydを自分でコンパイルする
 
-- Pythonの`zipfile`ライブラリは、ファイル名のエンコーディングに問題があるため[bit7z](https://github.com/rikyoz/bit7z)の[7-Zip](https://www.7-zip.org/)に変更できます。ライブラリは、[pybind11](https://github.com/pybind/pybind11) でコンパイルされ、コンパイルされたファイルは`. /gui/umauitools.pyd`に配置されます。このバイナリは、`Python 3.8`に基づいています。もし違うバージョンのPythonを使用している場合は、自分でコンパイルをしてください。ソースコードは以下にあります:`./unzip_cpp`
+- Pythonの`zipfile`ライブラリは、ファイル名のエンコーディングに問題があるため[bit7z](https://github.com/rikyoz/bit7z)の[7-Zip](https://www.7-zip.org/)に変更できます。ライブラリは[pybind11](https://github.com/pybind/pybind11) でコンパイルされ、コンパイルされたファイルは`. /gui/umauitools.pyd`に配置されます。このバイナリは、`Python 3.8`に基づいています。もし違うバージョンのPythonを使用している場合は、自分でコンパイルをしてください。ソースコードは以下にあります:`./unzip_cpp`
 
 ### コンパイルの設定
 
