@@ -28,10 +28,11 @@ except:
     import_cpp_success = False
 
 
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("tlgExtPlugin")
 local_language = ctypes.windll.kernel32.GetUserDefaultUILanguage()
 sChinese_lang_id = [0x0004, 0x0804, 0x1004]  # zh-Hans, zh-CN, zh-SG
 tChinese_lang_id = [0x0404, 0x0c04, 0x1404, 0x048E]  # zh-TW, zh-HK, zh-MO, zh-yue-HK
+JPN_lang_id = [0x0011, 0x0411]  # ja, ja-JP
 
 rpc = discord_rpc.DiscordRpc()
 rpc_data = discord_rpc.RpcSaveData()
@@ -143,7 +144,7 @@ class UIChange(QWidget):
         self.tlg_http_port = None
 
         self.more_settings_i18n_file = None
-        if local_language in sChinese_lang_id + tChinese_lang_id:
+        if local_language in sChinese_lang_id + tChinese_lang_id + JPN_lang_id:
             self.trans = QtCore.QTranslator()
             self.trans2 = QtCore.QTranslator()
             self.trans3 = QtCore.QTranslator()
@@ -167,6 +168,14 @@ class UIChange(QWidget):
                 self.trans5.load(":/trans/ts_zh_tw/more_ui_zh_tw.qm")
                 self.trans6.load(":/trans/ts_zh_tw/window_settings.qm")
                 self.more_settings_i18n_file = "./localized_data/config_schema/text_data_info_i18n_zh_tw.json"
+            if local_language in JPN_lang_id:
+                self.trans.load(":/trans/ts_ja_jp/main_ui_ja_jp.qm")
+                self.trans2.load(":/trans/ts_ja_jp/ui_rpc_ja_jp.qm")
+                self.trans3.load(":/trans/ts_ja_jp/ui_config_ja_jp.qm")
+                self.trans4.load(":/trans/ts_ja_jp/ui_dmmlogin_ja_jp.qm")
+                self.trans5.load(":/trans/ts_ja_jp/more_ui_ja_jp.qm")
+                self.trans6.load(":/trans/ts_ja_jp/window_settings.qm")
+                self.more_settings_i18n_file = "./localized_data/config_schema/text_data_info_i18n_ja.json"
 
             self.app.installTranslator(self.trans)
             self.app.installTranslator(self.trans2)
@@ -470,6 +479,8 @@ del reboot.bat & exit"""
             schema_file = f"{base_path}/localized_data/config_schema/config.schema.json"
         elif local_language in tChinese_lang_id:
             schema_file = f"{base_path}/localized_data/config_schema/config_zh_tw.schema.json"
+        elif local_language in JPN_lang_id:
+            schema_file = f"{base_path}/localized_data/config_schema/config_ja.schema.json"
         else:
             schema_file = f"{base_path}/localized_data/config_schema/config_en.schema.json"
         if not os.path.isfile(schema_file):
