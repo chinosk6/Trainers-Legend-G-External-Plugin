@@ -78,7 +78,8 @@ python38.lib
 
 # 打包
 
-- 建议使用[Nuitka](https://github.com/Nuitka/Nuitka)进行打包。Nuitka可以将Python代码转换为C++后编译, 极大提高了运行速度
+- ~~建议使用[Nuitka](https://github.com/Nuitka/Nuitka)进行打包。Nuitka可以将Python代码转换为C++后编译, 极大提高了运行速度~~
+- Nuitka 目前不再支持 PyQt5
 
 ```shell
 nuitka --standalone --windows-icon-from-ico=jio.ico --onefile --plugin-enable=pyqt5 --include-qt-plugins=sensible,styles main.py
@@ -86,5 +87,12 @@ nuitka --standalone --windows-icon-from-ico=jio.ico --onefile --plugin-enable=py
 
 
 
-- 您也可以使用[pyinstaller](https://github.com/pyinstaller/pyinstaller)进行打包
+- 使用[pyinstaller](https://github.com/pyinstaller/pyinstaller)进行打包
+- `"E:\upx"` 请替换成自己的 [UPX](https://github.com/upx/upx/releases) 目录
+
+```shell
+pyinstaller -F --noconsole -i jio.ico -n legend_g_plugin.exe main.py --upx-dir "E:\upx" --clean --add-data uncompressed.tpk;./UnityPy/resources/
+```
+
+
 

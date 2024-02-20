@@ -15,7 +15,6 @@
 
 ## ファイルのアップデート機能
 
-- プラグインの更新は、GitHub APIをベースにしており国内の逆生成サーバーを使用して速度を最適化しています
 - 翻訳ファイルのホットアップデートプロジェクトは、以下から使用できます: [**Trainers-Legend-Barbecue**](https://github.com/chinosk6/Trainers-Legend-Barbecue)
 
 
@@ -72,11 +71,20 @@ python38.lib
 
 # パッケージ化
 
-- [Nuitka](https://github.com/Nuitka/Nuitka)はPythonのコードをC++に変換してからコンパイルができるので作業効率が大幅に向上します
+- ~~[Nuitka](https://github.com/Nuitka/Nuitka)はPythonのコードをC++に変換してからコンパイルができるので作業効率が大幅に向上します~~
+- Nuitkaは現在、PyQt5をサポートしていません。
 
 
 ```shell
 nuitka --standalone --windows-icon-from-ico=jio.ico --onefile --plugin-enable=pyqt5 --include-qt-plugins=sensible,styles main.py
 ```
 
-- [pyinstaller](https://github.com/pyinstaller/pyinstaller)を使ってパッケージ化もできます
+
+
+- [pyinstaller](https://github.com/pyinstaller/pyinstaller)
+- `"E:\upx"`をご自身の[UPX](https://github.com/upx/upx/releases)ディレクトリに置き換えてください。
+
+```shell
+pyinstaller -F --noconsole -i jio.ico -n legend_g_plugin.exe main.py --upx-dir "E:\upx" --clean --add-data uncompressed.tpk;./UnityPy/resources/
+```
+
