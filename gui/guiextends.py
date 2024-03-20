@@ -2,7 +2,8 @@ from threading import Thread
 import time
 import requests
 from hashlib import md5
-from .qtui.ui_import import MainUI, ConfigUI, RPCUI, MoreSettingsUI, WindowSettingsUI
+from .qtui.ui_import import (MainUI, ConfigUI, RPCUI, MoreSettingsUI, WindowSettingsUI, local_language,
+                             sChinese_lang_id, tChinese_lang_id, JPN_lang_id)
 from .qtui import msrc_rc  # 不能删
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QDialog, QApplication, QMainWindow, QWidget, QInputDialog
@@ -29,10 +30,6 @@ except:
 
 
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("tlgExtPlugin")
-local_language = ctypes.windll.kernel32.GetUserDefaultUILanguage()
-sChinese_lang_id = [0x0004, 0x0804, 0x1004]  # zh-Hans, zh-CN, zh-SG
-tChinese_lang_id = [0x0404, 0x0c04, 0x1404, 0x048E]  # zh-TW, zh-HK, zh-MO, zh-yue-HK
-JPN_lang_id = [0x0011, 0x0411]  # ja, ja-JP
 
 rpc = discord_rpc.DiscordRpc()
 rpc_data = discord_rpc.RpcSaveData()
