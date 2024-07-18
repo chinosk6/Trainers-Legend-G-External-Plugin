@@ -727,6 +727,10 @@ del reboot.bat & exit"""
                 f.write(f"""@echo off
             setlocal
             taskkill /im "umamusume.exe"
+            taskkill /im "umamusume.exe"
+            :waitloop
+            tasklist | find /i "umamusume.exe" >NUL
+            if %ERRORLEVEL% == 0 goto waitloop
             del gkill.bat & exit"""
                         )
             os.system("gkill.bat")
