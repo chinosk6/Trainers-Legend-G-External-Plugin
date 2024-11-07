@@ -14,7 +14,7 @@ using namespace py::literals;
 class UnzipZip {
 public:
 	UnzipZip(const std::string& data) : wuhu(data) {
-		printf("俺の愛馬が！\n");
+		wprintf(L"俺の愛馬が！\n");
 	}
     std::string wuhu;
 
@@ -37,13 +37,13 @@ public:
         return wstring(&buffer[0], charsConverted);
     }
 
-    static std::string decompress_file(std::string zipname, std::string outputPath)
+    static std::string decompress_file_lib(std::string zipname, std::string outputPath, std::string libPath = "7z.dll")
     {
         try {
             std::wstring filename = to_wide_string(zipname);
             std::wstring outPath = to_wide_string(outputPath);
 
-            Bit7zLibrary lib{ L"7z.dll" };
+            Bit7zLibrary lib{ to_wide_string(libPath) };
             BitExtractor extractor{ lib, BitFormat::Zip };
 
             if (!std::filesystem::exists(outPath)) {
@@ -56,6 +56,11 @@ public:
             return std::format("UnzipError: {}", ex.what());
         }
     }
+
+    static std::string decompress_file(std::string zipname, std::string outputPath)
+    {
+        return decompress_file_lib(zipname, outputPath);
+    }
 };
 
 
@@ -65,6 +70,7 @@ PYBIND11_MODULE(umauitools, m) {
     py::class_<UnzipZip>(m, "Unzip")
         .def(py::init<const std::string&>())
         .def("decompress_file", &UnzipZip::decompress_file)
+        .def("decompress_file_lib", &UnzipZip::decompress_file_lib)
 		.def_readwrite("wuhu", &UnzipZip::wuhu)
         ;
 

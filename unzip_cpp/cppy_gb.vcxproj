@@ -32,7 +32,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{a0895f0a-7d30-4000-a7b7-5648eba0dc44}</ProjectGuid>
     <RootNamespace>cppygb</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -57,7 +57,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -91,9 +91,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Y7000\AppData\Local\Programs\Python\Python38\include;E:\python\pybind11-2.10.3\include;./bit7z/include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Y7000\AppData\Local\Programs\Python\Python38\libs;./bit7z/include;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files\Python38\include;.\pybind11-2.10.3\include;./bit7z/include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\Python38\libs;./bit7z/include;$(LibraryPath)</LibraryPath>
     <TargetExt>.pyd</TargetExt>
+    <TargetName>umauitools</TargetName>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnabled>true</VcpkgEnabled>

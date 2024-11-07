@@ -55,7 +55,7 @@ def unzip_file_built_in(zipfilename, unziptodir):
             outfile.close()
 
 def unzip_file_cpp(zipfilename, unziptodir):
-    unzip_stat = umauitools.Unzip.decompress_file(zipfilename, unziptodir)
+    unzip_stat = umauitools.Unzip.decompress_file_lib(zipfilename, unziptodir, os.path.abspath("7z.dll"))
     if unzip_stat != "ok":
         raise RuntimeError(f"Unzip failed: {unzip_stat}")
 

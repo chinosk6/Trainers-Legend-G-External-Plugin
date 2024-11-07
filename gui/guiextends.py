@@ -199,6 +199,7 @@ class UIChange(QWidget):
 
         super(UIChange, self).__init__()
         self.uma_path = os.path.abspath(".").replace("\\", "/")
+        self.resource_path = os.path.abspath(".").replace("\\", "/")
         self.cache_config_changes = None
         self.uma_load_cmd = None
 
@@ -269,6 +270,9 @@ class UIChange(QWidget):
                 if i.startswith("--tlgport="):
                     self.tlg_http_port = i[len("--tlgport="):]
                     _cp = i
+                if i.startswith("--resource_path="):
+                    self.resource_path = i[len("--resource_path="):].replace("\\", "/")
+                    args.remove(i)
                     break
 
             if self.tlg_http_port is not None:
@@ -414,7 +418,8 @@ taskkill /im "umamusume.exe" >NUL
 tasklist | find /i "umamusume.exe" >NUL
 if %ERRORLEVEL% == 0 goto waitloop
 
-start "" {self.uma_load_cmd}
+cd /d "{self.resource_path}" && tlg_starter.exe
+cd /d "{self.uma_path}" && start "" {self.uma_load_cmd}
 del reboot.bat & exit"""
                         )
             os.system("start reboot.bat & exit")
@@ -439,11 +444,11 @@ del reboot.bat & exit"""
 
     def save_config_changes(self, *args):
         if self.cache_config_changes is not None:
-            if os.path.isfile(f"{self.uma_path}/config.json"):
-                with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as f:
+            if os.path.isfile(f"{self.resource_path}/config.json"):
+                with open(f"{self.resource_path}/config.json", "r", encoding="utf8") as f:
                     orig_data = json.load(f)
 
-                with open(f"{self.uma_path}/config.json", "w", encoding="utf8") as f:
+                with open(f"{self.resource_path}/config.json", "w", encoding="utf8") as f:
                     orig_data.update(self.cache_config_changes)
                     json.dump(orig_data, f, ensure_ascii=False, indent=4)
         self.window_config.close()
@@ -470,7 +475,7 @@ del reboot.bat & exit"""
         return inner
 
     def get_schema_form(self):
-        base_path = self.uma_path
+        base_path = self.resource_path
 
         if local_language in sChinese_lang_id:
             schema_file = f"{base_path}/localized_data/config_schema/config.schema.json"
@@ -589,8 +594,8 @@ del reboot.bat & exit"""
         def _():
             self.update_btn_signal.emit("false")
 
-            version_txt_path = f"{self.uma_path}/version.txt"
-            config_path = f"{self.uma_path}/config.json"
+            version_txt_path = f"{self.resource_path}/version.txt"
+            config_path = f"{self.resource_path}/config.json"
             if os.path.isfile(version_txt_path):
                 with open(version_txt_path, "r", encoding="utf8") as f:
                     current_version = f.read().strip()
@@ -645,13 +650,13 @@ del reboot.bat & exit"""
             self.ui.pushButton_plugin_update.setText(s)
 
     def update_button_onclick(self, *args):
-        save_name = f"{self.uma_path}/auto_p_update.zip"
+        save_name = f"{self.resource_path}/auto_p_update.zip"
 
         def download_file():
             config_old = {}
             try:
-                if os.path.isfile(f"{self.uma_path}/config.json"):
-                    with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as fc:
+                if os.path.isfile(f"{self.resource_path}/config.json"):
+                    with open(f"{self.resource_path}/config.json", "r", encoding="utf8") as fc:
                         config_old = json.load(fc)
 
                 for i in self._autoupdate_response_cache["assets"]:
@@ -673,7 +678,7 @@ del reboot.bat & exit"""
                                     self.update_btn_signal.emit(f"{int(down_size / total * 100)}%")
                         self.update_btn_signal.emit("unzipping")
                         time.sleep(0.5)
-                        unzip_file.unzip_file(save_name, f"{self.uma_path}/")
+                        unzip_file.unzip_file(save_name, f"{self.resource_path}/")
                         os.remove(save_name)
 
                 self.update_btn_signal.emit("Done.")
@@ -684,23 +689,23 @@ del reboot.bat & exit"""
                 self.show_message_signal.emit("Update Failed!", f"{repr(ex)}\n\n"
                                                                 f"缓存文件已保存: auto_p_update.zip")
             finally:
-                if os.path.isfile(f"{self.uma_path}/config.json"):
-                    with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as fc:
+                if os.path.isfile(f"{self.resource_path}/config.json"):
+                    with open(f"{self.resource_path}/config.json", "r", encoding="utf8") as fc:
                         config_new = json.load(fc)
                     config_update = unzip_file.config_update(config_old, config_new)
-                    with open(f"{self.uma_path}/config.json", "w", encoding="utf8") as fc:
+                    with open(f"{self.resource_path}/config.json", "w", encoding="utf8") as fc:
                         json.dump(config_update, fc, indent=4, ensure_ascii=False)
 
         def unzip_from_cache():
             config_old = {}
             try:
-                if os.path.isfile(f"{self.uma_path}/config.json"):
-                    with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as fc:
+                if os.path.isfile(f"{self.resource_path}/config.json"):
+                    with open(f"{self.resource_path}/config.json", "r", encoding="utf8") as fc:
                         config_old = json.load(fc)
 
                 self.update_btn_signal.emit("unzipping")
                 time.sleep(0.5)
-                unzip_file.unzip_file(save_name, f"{self.uma_path}/")
+                unzip_file.unzip_file(save_name, f"{self.resource_path}/")
                 self.update_btn_signal.emit("Done.")
                 self.update_finish_signal.emit()
             except BaseException as e:
@@ -708,11 +713,11 @@ del reboot.bat & exit"""
                 self.update_btn_enable.emit(True)
                 self.show_message_signal.emit("Exception Occurred", repr(e))
             finally:
-                if os.path.isfile(f"{self.uma_path}/config.json"):
-                    with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as fc:
+                if os.path.isfile(f"{self.resource_path}/config.json"):
+                    with open(f"{self.resource_path}/config.json", "r", encoding="utf8") as fc:
                         config_new = json.load(fc)
                     config_update = unzip_file.config_update(config_old, config_new)
-                    with open(f"{self.uma_path}/config.json", "w", encoding="utf8") as fc:
+                    with open(f"{self.resource_path}/config.json", "w", encoding="utf8") as fc:
                         json.dump(config_update, fc, indent=4, ensure_ascii=False)
                 os.remove(save_name)
             return
@@ -722,7 +727,7 @@ del reboot.bat & exit"""
         res = self.show_message_box("Plugin Update", f"{self._autoupdate_response_cache['body']}")
         if res == QtWidgets.QMessageBox.Yes:
             self.ui.pushButton_plugin_update.setEnabled(False)
-            open(f"{self.uma_path}/dontcloseext.lock", "wb").close()
+            open(f"{self.resource_path}/dontcloseext.lock", "wb").close()
             with open("gkill.bat", "w", encoding="utf8") as f:
                 f.write(f"""@echo off
             setlocal
@@ -871,8 +876,8 @@ del reboot.bat & exit"""
             is_enable_unlock_plain_cloth = self.ui_moresettings.checkBox_unlock_plain_dress.isChecked()
             uma_server.set_enable_unlock_plain_cloth(is_enable_unlock_plain_cloth)
 
-            if os.path.isfile(f"{self.uma_path}/config.json"):
-                with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as f:
+            if os.path.isfile(f"{self.resource_path}/config.json"):
+                with open(f"{self.resource_path}/config.json", "r", encoding="utf8") as f:
                     config_data = json.load(f)
                 orig_stat = config_data.get("bypass_live_205", False)
                 if "bypass_live_205" in config_data:
@@ -881,7 +886,7 @@ del reboot.bat & exit"""
                     config_data["bypass_live_205"] = True
 
                 if orig_stat != self.ui_moresettings.checkBox_bypass_205.isChecked():
-                    with open(f"{self.uma_path}/config.json", "w", encoding="utf8") as fw:
+                    with open(f"{self.resource_path}/config.json", "w", encoding="utf8") as fw:
                         fw.write(json.dumps(config_data, indent=4, ensure_ascii=False))
                     self.reload_config()
 
@@ -948,7 +953,7 @@ del reboot.bat & exit"""
         try:
             res = self.show_message_box("Unlock Dress", f"Need to quit the game first, do you want to continue?")
             if res == QtWidgets.QMessageBox.Yes:
-                open(f"{self.uma_path}/dontcloseext.lock", "wb").close()
+                open(f"{self.resource_path}/dontcloseext.lock", "wb").close()
                 os.system("taskkill /im \"umamusume.exe\"")
                 time.sleep(2)
                 ut = uma_tools.UmaTools()
@@ -1222,7 +1227,7 @@ del reboot.bat & exit"""
                         print("check_uma_window_resize - Can't find target window.")
                         return
 
-                    with open(os.path.join(self.uma_path, "config.json"), "r", encoding="utf8") as f:
+                    with open(os.path.join(self.resource_path, "config.json"), "r", encoding="utf8") as f:
                         data = json.load(f)
                         force_landscape = data.get("aspect_ratio_new", {}).get("forceLandscape", False)
                     direction_key = "hori" if force_landscape else "vert"
@@ -1311,8 +1316,8 @@ del reboot.bat & exit"""
         self.window_windowsettings.show()
         self.window_moresettings.hide()
         self.refresh_window_position()
-        if os.path.isfile(f"{self.uma_path}/config.json"):
-            with open(f"{self.uma_path}/config.json", "r", encoding="utf8") as f:
+        if os.path.isfile(f"{self.resource_path}/config.json"):
+            with open(f"{self.resource_path}/config.json", "r", encoding="utf8") as f:
                 data = json.load(f).get("aspect_ratio_new", {})
                 set_w = data.get("w", 16.0)
                 set_h = data.get("h", 9.0)
@@ -1350,13 +1355,14 @@ del reboot.bat & exit"""
         def _():
             self.set_files_update_btn_signal.emit(False)
             try:
-                file_root = f"{self.uma_path}/localized_data"
+                file_root = f"{self.resource_path}/localized_data"
 
                 send_bdy = {}
                 for root, dirs, files in os.walk(file_root):
                     for f in files:
                         full_name = os.path.normpath(os.path.join(root, f)).replace("\\", "/")
-                        relative_path = full_name.replace(self.uma_path, "")
+                        relative_path = full_name.replace(self.resource_path, "")
+                        print(full_name, relative_path)
                         send_bdy[relative_path] = self.get_file_md5(full_name, True)
 
                 headers = {'Content-Type': 'application/json'}
@@ -1411,7 +1417,7 @@ del reboot.bat & exit"""
                         "hash": file_hash
                     })
                     if file_resp.status_code == 200:
-                        write_name = f"{self.uma_path}{fname}"
+                        write_name = f"{self.resource_path}{fname}"
                         fpath = os.path.split(write_name)[0]
                         if not os.path.isdir(fpath):
                             os.makedirs(fpath)
