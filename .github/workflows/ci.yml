@@ -1,0 +1,53 @@
+name: ci
+on: 
+  workflow_dispatch:
+  push: 
+    paths:
+      - '**.lua'
+      - '**.cpp'
+      - '**.c'
+      - '**.hpp'
+      - '**.h'
+      - '**.yml'
+      - '**.py'
+      - '**.pyd'
+      - '.gitmodules'
+      - '.gitignore'
+      - '.gitattributes'
+
+  pull_request:
+      paths:
+      - '**.lua'
+      - '**.cpp'
+      - '**.c'
+      - '**.hpp'
+      - '**.h'
+      - '**.yml'
+      - '**.py'
+      - '**.pyd'
+      - '.gitmodules'
+      - '.gitignore'
+      - '.gitattributes'
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          
+      - name: install-dependencies
+        run: |
+          pip3 install -r requirements.txt --upgrade
+
+      - name: build
+        run: |
+          pyinstaller -F --noconsole -i jio.ico -n legend_g_plugin.exe main.py --upx-dir "./myres/upx" --clean --add-data uncompressed.tpk;./UnityPy/resources/
+          
+      - uses: actions/upload-artifact@v4
+        with:
+          name: legend_g_plugin
+          path: dist/legend_g_plugin.exe

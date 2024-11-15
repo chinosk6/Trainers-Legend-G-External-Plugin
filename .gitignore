@@ -145,3 +145,5 @@ dmypy.json
 /legend_g_plugin_windows7.exe
 /main.onefile-build
 /7z.dll
+/unzip_cpp/.conan
+/unzip_cpp/pybind11-2.10.3
