@@ -46,7 +46,7 @@ jobs:
 
       - name: build
         run: |
-          pyinstaller -F --noconsole -i jio.ico -n legend_g_plugin.exe main.py --upx-dir "E:\upx" --clean --add-data "uncompressed.tpk;./UnityPy/resources/"
+          pyinstaller -F --noconsole -i jio.ico -n legend_g_plugin.exe main.py --upx-dir "./myres/upx" --clean --add-data "uncompressed.tpk;./UnityPy/resources/"
           
       - uses: actions/upload-artifact@v4
         with:
