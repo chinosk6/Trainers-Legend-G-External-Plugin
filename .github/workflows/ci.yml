@@ -38,10 +38,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-          
+
       - name: install-dependencies
         run: |
           pip3 install -r requirements.txt --upgrade
+          pip3 install pyinstaller==5.7.0 --upgrade
 
       - name: build
         run: |
